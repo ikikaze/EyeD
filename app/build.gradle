@@ -31,7 +31,6 @@ dependencies {
 
     testImplementation 'junit:junit:4.12'
 
-
     implementation 'com.wdullaer:materialdatetimepicker:3.5.2'
     implementation 'org.jmrtd:jmrtd:0.5.5'
     implementation 'net.sf.scuba:scuba-sc-android:0.0.9'

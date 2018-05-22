@@ -14,4 +14,7 @@
     <string name="flash_auto">Flash auto</string>
     <string name="flash_off">Flash off</string>
     <string name="flash_on">Flash on</string>
+    <string name="connectionName">connName</string>
+    <string name="connectionIP">connIP</string>
+    <string name="connectionMAC">connMAC</string>
 </resources>
