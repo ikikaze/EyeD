@@ -5,8 +5,8 @@
     <string name="strPass">Pasaport</string>
     <string name="strLicense">Permis</string>
     <string name="strSearch">Cauta Fisier</string>
-    <string name="camera_permission_confirmation">This app demonstrates the usage of CameraView. In order to do that, it needs permission to access camera.</string>
-    <string name="camera_permission_not_granted">Camera app cannot do anything without camera permission.</string>
+    <string name="camera_permission_confirmation">Permiteti folosirea camerei dispozitivului pentru a face poze.</string>
+    <string name="camera_permission_not_granted">Nu se pot realiza poze fara permisiune</string>
     <string name="picture_taken">Picture taken</string>
     <string name="aspect_ratio">Aspect ratio</string>
     <string name="switch_flash">Switch flash</string>

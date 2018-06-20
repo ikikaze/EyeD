@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -20,6 +21,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.google.android.cameraview.CameraView;
@@ -28,6 +30,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+
+import ro.lockdowncode.eyedread.UI.RectSizeHandler;
 
 
 public class LicenseActivity extends AppCompatActivity {
@@ -117,14 +121,29 @@ public class LicenseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_license);
-        mCameraView = (CameraView) findViewById(R.id.camera);
+        mCameraView = findViewById(R.id.camera);
         if (mCameraView != null) {
             mCameraView.addCallback(mCallback);
         }
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab_take_picture);
+
+        View rectview = findViewById(R.id.Rect);
+        ViewGroup.LayoutParams params = rectview.getLayoutParams();
+
+        RectSizeHandler sizeHandler = new RectSizeHandler();
+
+        int[] widthHeight = sizeHandler.getRectSizes(RectSizeHandler.Type.PERMIS);
+
+        params.width = widthHeight[0];
+        params.height = widthHeight[1];
+
+
+        FloatingActionButton fab = findViewById(R.id.fab_take_picture);
         if (fab != null) {
             fab.setOnClickListener(mOnClickListener);
         }
+
+
+
     }
 
     @Override

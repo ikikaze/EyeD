@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#edeeee"
     tools:context=".MainActivity2">
 
     <Button
@@ -17,9 +18,9 @@
         android:layout_marginTop="8dp"
         android:background="@drawable/button_bg"
         android:drawableTop="@mipmap/search"
+        android:onClick="btnsClicked"
         android:text="@string/strSearch"
         android:textColor="@color/colorEyeD"
-        android:onClick="btnsClicked"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.333"
@@ -36,10 +37,10 @@
         android:layout_marginTop="8dp"
         android:background="@drawable/button_bg"
         android:drawableTop="@mipmap/idcard"
+        android:onClick="btnsClicked"
         android:padding="10dp"
         android:text="@string/strID"
         android:textColor="@color/colorEyeD"
-        android:onClick="btnsClicked"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnConnect"
@@ -55,11 +56,11 @@
         android:layout_marginTop="8dp"
         android:background="@drawable/button_bg"
         android:drawableTop="@mipmap/link"
+        android:onClick="btnsClicked"
         android:padding="3dp"
         android:paddingBottom="3dp"
         android:text="@string/strConnect"
         android:textColor="@color/colorEyeD"
-        android:onClick="btnsClicked"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -88,10 +89,10 @@
             android:layout_weight="1"
             android:background="@drawable/button_bg"
             android:drawableTop="@mipmap/pass"
+            android:onClick="btnsClicked"
             android:padding="7dp"
             android:text="@string/strPass"
-            android:textColor="@color/colorEyeD"
-            android:onClick="btnsClicked" />
+            android:textColor="@color/colorEyeD" />
 
         <Button
             android:id="@+id/btnLicense"
@@ -101,10 +102,10 @@
             android:layout_weight="1"
             android:background="@drawable/button_bg"
             android:drawableTop="@mipmap/license"
+            android:onClick="btnsClicked"
             android:padding="7dp"
             android:text="@string/strLicense"
-            android:textColor="@color/colorEyeD"
-            android:onClick="btnsClicked" />
+            android:textColor="@color/colorEyeD" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
