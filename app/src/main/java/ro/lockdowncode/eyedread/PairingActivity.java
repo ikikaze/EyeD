@@ -2,6 +2,7 @@ package ro.lockdowncode.eyedread;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -23,8 +24,6 @@ public class PairingActivity extends AppCompatActivity {
     public static PairingActivity getInstance() {
         return instance;
     }
-
-    private ProgressDialog waitingDialog;
 
     //DEFINING A STRING ADAPTER WHICH WILL HANDLE THE DATA OF THE LISTVIEW
     CustomConnectionListAdapter adapter;
@@ -58,7 +57,7 @@ public class PairingActivity extends AppCompatActivity {
 
                 sendPin.setOnClickListener(new View.OnClickListener() {
                     public void onClick(View v) {
-                        MainActivity.getInstance().saveNewConnection(item.getName(), item.getIp(), item.getMac());
+                        MainActivity.getInstance().saveNewConnection(item.getName(), item.getIp(), null);
 
                         // send paring pin to desktop
                         Message msg = new Message();
@@ -70,12 +69,9 @@ public class PairingActivity extends AppCompatActivity {
 
                         dialog.dismiss();
 
-                        waitingDialog = ProgressDialog.show(PairingActivity.this, "",
-                                "Waiting for connection...", true);
-
-                        /*Intent homepage = new Intent(MainActivity.getInstance(), MainActivity.class);
+                        Intent homepage = new Intent(MainActivity.getInstance(), MainActivity.class);
                         homepage.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                        startActivity(homepage);*/
+                        startActivity(homepage);
                     }
                 });
 
@@ -84,8 +80,8 @@ public class PairingActivity extends AppCompatActivity {
             }
         });
 
-        addDesktopClient("Adi-Desktop","192.168.100.8", "f8a8214ed");
-        addDesktopClient("Toni-Desktop","192.168.0.104", "eda3244ed");
+        addDesktopClient("Adi-Desktop","192.168.100.8", "");
+        addDesktopClient("Toni-Desktop","192.168.0.104", "");
 
         new Thread(new Runnable() {
             @Override
@@ -129,12 +125,6 @@ public class PairingActivity extends AppCompatActivity {
                     }
                 }
             });
-        }
-    }
-
-    public void pairingSuccessful() {
-        if (waitingDialog != null) {
-            waitingDialog.dismiss();
         }
     }
 }

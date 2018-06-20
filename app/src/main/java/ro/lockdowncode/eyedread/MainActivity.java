@@ -30,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
     private Button btnLicense;
     private Button btnConnect;
 
+    private Dialog connDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,11 +47,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, CommunicationService.class);
         startService(intent);
 
-        if (isConnectionSaved()) {
-            btnConnect.setText("Connected to " + getConnectionName());
-        } else {
-            btnConnect.setText("Connect to Desktop");
-        }
+        resetConnectionButtonText();
     }
 
     private void initButtons() {
@@ -61,48 +59,73 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void handleConnectBtnClik() {
-        if (isConnectionSaved()) {
-            // custom dialog
-            final Dialog connDialog = new Dialog(MainActivity.getInstance());
-            connDialog.setContentView(R.layout.connection_details_dialog);
-            connDialog.setTitle("Title...");
-
-            TextView name = connDialog.findViewById(R.id.connectionName);
-            name.setText(getConnectionName());
-            TextView ip = connDialog.findViewById(R.id.connectionIP);
-            ip.setText(getConnectionIP());
-            TextView mac = connDialog.findViewById(R.id.connectionMAC);
-            mac.setText(getConnectionMAC());
-
-            Button newConnectionButton = connDialog.findViewById(R.id.newConnectionBtn);
-            newConnectionButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                new AlertDialog.Builder(MainActivity.getInstance())
-                    .setTitle("Title")
-                    .setMessage("Do you really want to whatever?")
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int whichButton) {
-                        resetConnectionPreferences();
-                        Intent homepage = new Intent(MainActivity.this, PairingActivity.class);
-                        startActivity(homepage);
-                    }})
-                    .setNegativeButton(android.R.string.no, null).show();
-                }
-            });
-            Button backButton = connDialog.findViewById(R.id.backBtn);
-            backButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    connDialog.dismiss();
-                }
-            });
-
-            connDialog.show();
+        if (getConnStatus() == CONNECTION_STATUS.CONNECTED) {
+            handleConnectionStatusClick_Connected(false);
+        } else if (getConnStatus() == CONNECTION_STATUS.WAITTING) {
+            handleConnectionStatusClick_Connected(true);
         } else {
-                    Intent homepage = new Intent(MainActivity.this, PairingActivity.class);
-                    startActivity(homepage);
-
+            Intent homepage = new Intent(MainActivity.this, PairingActivity.class);
+            startActivity(homepage);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        resetConnectionButtonText();
+        if (connDialog != null) {
+            connDialog.dismiss();
+        }
+    }
+
+    public void resetConnectionButtonText() {
+        if (getConnStatus() == CONNECTION_STATUS.CONNECTED) {
+            btnConnect.setText("Connected to "+getConnectionName());
+        } else if (getConnStatus() == CONNECTION_STATUS.WAITTING) {
+            btnConnect.setText("Waiting for connection to "+getConnectionName());
+        } else {
+            btnConnect.setText("Connect to desktop");
+        }
+    }
+
+    private void handleConnectionStatusClick_Connected(boolean waiting) {
+        // custom dialog
+        connDialog = new Dialog(MainActivity.getInstance());
+        connDialog.setContentView(R.layout.connection_details_dialog);
+        connDialog.setTitle("Title...");
+
+        String status = waiting ? "Connection waiting for ": "Connected to ";
+        TextView name = connDialog.findViewById(R.id.connectionName);
+        name.setText(status + getConnectionName());
+        TextView ip = connDialog.findViewById(R.id.connectionIP);
+        ip.setText(getConnectionIP());
+        //TextView mac = connDialog.findViewById(R.id.connectionMAC);
+        //mac.setText(getConnectionMAC());
+
+        Button newConnectionButton = connDialog.findViewById(R.id.newConnectionBtn);
+        newConnectionButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                new AlertDialog.Builder(MainActivity.getInstance())
+                        .setTitle("Title")
+                        .setMessage("Do you really want to make a new connection ?")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                resetConnectionPreferences();
+                                Intent homepage = new Intent(MainActivity.this, PairingActivity.class);
+                                startActivity(homepage);
+                            }})
+                        .setNegativeButton(android.R.string.no, null).show();
+            }
+        });
+        Button backButton = connDialog.findViewById(R.id.backBtn);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                connDialog.dismiss();
+            }
+        });
+
+        connDialog.show();
     }
 
 
@@ -128,19 +151,37 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
     }
 
+    public void pairingSuccessful(String desktopMAC) {
+        saveNewConnection(getConnectionName(), getConnectionIP(), desktopMAC);
+        resetConnectionButtonText();
+    }
+
+    public void updateDsktopIP(String desktopIP) {
+        saveNewConnection(getConnectionName(), desktopIP, getConnectionMAC());
+    }
+
+    public enum CONNECTION_STATUS { UNCONNECTED, WAITTING, CONNECTED};
+
+    public CONNECTION_STATUS getConnStatus() {
+        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        String connName = sharedPref.getString(getString(R.string.connectionName), null);
+        String connIP = sharedPref.getString(getString(R.string.connectionIP), null);
+        String connMAC = sharedPref.getString(getString(R.string.connectionMAC), null);
+
+        if (connName != null && !connName.isEmpty() && connIP != null && !connIP.isEmpty()) {
+            if (connMAC != null && !connMAC.isEmpty()) {
+                return CONNECTION_STATUS.CONNECTED;
+            }
+            return CONNECTION_STATUS.WAITTING;
+        }
+        return CONNECTION_STATUS.UNCONNECTED;
+    }
+
     public void resetConnectionPreferences() {
         SharedPreferences sharedPref = MainActivity.getInstance().getPreferences(Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.clear();
         editor.commit();
-    }
-
-    public boolean isConnectionSaved() {
-        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        String connName = sharedPref.getString(getString(R.string.connectionName), null);
-        String connIP = sharedPref.getString(getString(R.string.connectionIP), null);
-        String connMAC = sharedPref.getString(getString(R.string.connectionMAC), null);
-        return (connName != null && !connName.isEmpty() && connIP != null && !connIP.isEmpty() && connMAC != null && !connMAC.isEmpty());
     }
 
     public void saveNewConnection(String name, String ip, String mac) {

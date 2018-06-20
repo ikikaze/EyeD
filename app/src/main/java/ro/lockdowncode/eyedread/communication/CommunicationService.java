@@ -106,19 +106,26 @@ public class CommunicationService extends Service implements MessageListener {
         switch (messageCode) {
             case "0001":
                 String desktopName = msgChunks[1];
-                String desktopMAC = "unknown mac";
+                String desktopMAC = "";
                 PairingActivity.getInstance().addDesktopClient(desktopName, desktopIP, desktopMAC);
                 break;
             case "0003":
-                String mac = msgChunks[1];
-                PairingActivity.getInstance().pairingSuccessful();
+                desktopMAC = msgChunks[1];
+                MainActivity.getInstance().pairingSuccessful(desktopMAC);
+                break;
+            case "0007":
+                MainActivity.getInstance().updateDsktopIP(desktopIP);
+                break;
 
         }
     }
 
     @Override
     public void hostUnavailable(String hostIP) {
-        //
+        if (MainActivity.getInstance().getConnStatus() == MainActivity.CONNECTION_STATUS.CONNECTED) {
+            String multicastMessage = "0006:09fe5d9775f04a4b8b9b081a8e732bae:"+MainActivity.getInstance().getConnectionMAC();
+            new MultiCastSender(MainActivity.getInstance(), "255.255.255.255", 33558, multicastMessage).start();
+        }
     }
 
 }
