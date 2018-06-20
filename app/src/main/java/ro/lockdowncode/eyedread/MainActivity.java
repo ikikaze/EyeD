@@ -135,9 +135,12 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = null;
         switch (id) {
             case R.id.btnID:
+                intent = new Intent(this, LicenseActivity.class);
+                intent.putExtra("type", Utils.Type.BULETIN.name());
                 break;
             case R.id.btnLicense:
                 intent = new Intent(this, LicenseActivity.class);
+                intent.putExtra("type", Utils.Type.PERMIS.name());
                 break;
             case R.id.btnPass:
                 break;

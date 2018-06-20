@@ -6,11 +6,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.FloatingActionButton;
@@ -25,11 +21,6 @@ import android.widget.Toast;
 
 import com.google.android.cameraview.CameraView;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-
 import ro.lockdowncode.eyedread.UI.RectSizeHandler;
 import ro.lockdowncode.eyedread.Utils.Type;
 
@@ -43,17 +34,6 @@ public class LicenseActivity extends AppCompatActivity {
     private static final String FRAGMENT_DIALOG = "dialog";
     private PictureHandler mPictureHandler;
 
-
-    private Handler mBackgroundHandler;
-
-    private Handler getBackgroundHandler() {
-        if (mBackgroundHandler == null) {
-            HandlerThread thread = new HandlerThread("background");
-            thread.start();
-            mBackgroundHandler = new Handler(thread.getLooper());
-        }
-        return mBackgroundHandler;
-    }
 
     private CameraView.Callback mCallback
             = new CameraView.Callback() {
@@ -128,12 +108,14 @@ public class LicenseActivity extends AppCompatActivity {
         if (mCameraView != null) {
             mCameraView.addCallback(mCallback);
         }
+        Intent intent = getIntent();
+        Type type = Type.valueOf(intent.getStringExtra("type"));
 
         View rectview = findViewById(R.id.Rect);
         ViewGroup.LayoutParams params = rectview.getLayoutParams();
 
         RectSizeHandler sizeHandler = new RectSizeHandler();
-        int[] widthHeight = sizeHandler.getRectSizes(Type.PERMIS);
+        int[] widthHeight = sizeHandler.getRectSizes(type);
         params.width = widthHeight[0];
         params.height = widthHeight[1];
         rectview.setLayoutParams(params);
@@ -143,7 +125,7 @@ public class LicenseActivity extends AppCompatActivity {
             fab.setOnClickListener(mOnClickListener);
         }
 
-        mPictureHandler = new PictureHandler(this, Type.PERMIS);
+        mPictureHandler = new PictureHandler(this, type);
     }
 
 

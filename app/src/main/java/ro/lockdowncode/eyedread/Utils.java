@@ -48,15 +48,4 @@ public class Utils {
         }
     }
 
-
-    public static String typeToString(Type type)
-    {
-        switch (type)
-    {
-        case PASAPORT: return "Pasaport";
-        case PERMIS: return "Permis";
-        case BULETIN: return "Buletin";
-    }
-        return null;
-    }
 }

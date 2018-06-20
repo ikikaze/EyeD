@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
+import android.widget.Toast;
 
 
 import java.io.File;
@@ -18,7 +19,7 @@ import java.util.Date;
 
 import ro.lockdowncode.eyedread.Utils.Type;
 
-import static ro.lockdowncode.eyedread.Utils.typeToString;
+
 
 public class PictureHandler {
 
@@ -37,7 +38,7 @@ public class PictureHandler {
 
     private void getBackgroundHandler() {
         if (mBackgroundHandler == null) {
-            HandlerThread thread = new HandlerThread("background" + typeToString(mType));
+            HandlerThread thread = new HandlerThread("background" + mType.name());
             thread.start();
             mBackgroundHandler = new Handler(thread.getLooper());
         }
@@ -49,15 +50,19 @@ public class PictureHandler {
             @Override
             public void run() {
                 //first check folders for existence, create if not
-                String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator + "EyeDRead" + File.separator + typeToString(mType);
+                String path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + File.separator + "EyeDRead" + File.separator + mType.name();
                 File folder = new File(path);
                 if (!folder.exists())
-                    folder.mkdirs();
-
+                    try {
+                        folder.mkdirs();
+                    }
+                    catch (SecurityException e) {
+                        Toast.makeText(mContext, "Failed to create folder to save pictures in", Toast.LENGTH_SHORT).show();
+                    }
                 //make file name
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
                 String currentDateandTime = sdf.format(new Date());
-                String picName = typeToString(mType) + currentDateandTime + ".jpg";
+                String picName = mType.name() + currentDateandTime + ".jpg";
 
                 File file = new File(path, picName);
                 OutputStream os = null;
