@@ -1,11 +1,11 @@
 package ro.lockdowncode.eyedread.UI;
 
-import android.content.Context;
 import android.content.res.Resources;
+import ro.lockdowncode.eyedread.Utils.Type;
 
 public class RectSizeHandler {
 
-    public enum Type {PERMIS,BULETIN,PASAPORT};
+
 
 
     //return array of 2 elements , width and height of rect based on type
@@ -14,8 +14,10 @@ public class RectSizeHandler {
         int[] widthHeight = {0,0};
         double objHeight = 0 ,objWidth = 0;
         //lower as to not extend to edges of screen
-        int sWidth = (int)(getScreenWidth() * 0.75);
-        int sHeight = (int)(getScreenHeight()*0.75);
+
+
+        int sWidth = (int)(getScreenWidth() * 0.6);
+        int sHeight = (int)(getScreenHeight()*0.6);
 
         switch (type)
         { //sizes in mm;

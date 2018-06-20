@@ -16,6 +16,8 @@ import java.util.Enumeration;
 
 public class Utils {
 
+    public enum Type {PERMIS,BULETIN,PASAPORT}
+
     public static String getIpAddress() {
         try {
             for (Enumeration en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
@@ -44,5 +46,17 @@ public class Utils {
         } else {
             return false; // Wi-Fi adapter is OFF
         }
+    }
+
+
+    public static String typeToString(Type type)
+    {
+        switch (type)
+    {
+        case PASAPORT: return "Pasaport";
+        case PERMIS: return "Permis";
+        case BULETIN: return "Buletin";
+    }
+        return null;
     }
 }

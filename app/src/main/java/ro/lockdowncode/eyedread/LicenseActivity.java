@@ -6,7 +6,6 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -32,6 +31,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import ro.lockdowncode.eyedread.UI.RectSizeHandler;
+import ro.lockdowncode.eyedread.Utils.Type;
 
 
 public class LicenseActivity extends AppCompatActivity {
@@ -41,6 +41,7 @@ public class LicenseActivity extends AppCompatActivity {
     private CameraView mCameraView;
     private static final int REQUEST_CAMERA_PERMISSION = 1;
     private static final String FRAGMENT_DIALOG = "dialog";
+    private PictureHandler mPictureHandler;
 
 
     private Handler mBackgroundHandler;
@@ -72,7 +73,9 @@ public class LicenseActivity extends AppCompatActivity {
             Log.d(TAG, "onPictureTaken " + data.length);
             Toast.makeText(cameraView.getContext(), R.string.picture_taken, Toast.LENGTH_SHORT)
                     .show();
-            getBackgroundHandler().post(new Runnable() {
+
+            mPictureHandler.savePicture(data);
+            /*getBackgroundHandler().post(new Runnable() {
                 @Override
                 public void run() {
                     File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
@@ -99,7 +102,7 @@ public class LicenseActivity extends AppCompatActivity {
                         }
                     }
                 }
-            });
+            });*/
         }
 
     };
@@ -130,21 +133,19 @@ public class LicenseActivity extends AppCompatActivity {
         ViewGroup.LayoutParams params = rectview.getLayoutParams();
 
         RectSizeHandler sizeHandler = new RectSizeHandler();
-
-        int[] widthHeight = sizeHandler.getRectSizes(RectSizeHandler.Type.PERMIS);
-
+        int[] widthHeight = sizeHandler.getRectSizes(Type.PERMIS);
         params.width = widthHeight[0];
         params.height = widthHeight[1];
-
+        rectview.setLayoutParams(params);
 
         FloatingActionButton fab = findViewById(R.id.fab_take_picture);
         if (fab != null) {
             fab.setOnClickListener(mOnClickListener);
         }
 
-
-
+        mPictureHandler = new PictureHandler(this, Type.PERMIS);
     }
+
 
     @Override
     protected void onResume() {
