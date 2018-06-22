@@ -1,7 +1,10 @@
 package ro.lockdowncode.eyedread.communication;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -112,6 +115,12 @@ public class CommunicationService extends Service implements MessageListener {
             case "0003":
                 desktopMAC = msgChunks[1];
                 MainActivity.getInstance().pairingSuccessful(desktopMAC);
+                // send mac to desktop
+                WifiManager manager = (WifiManager) MainActivity.getInstance().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+                WifiInfo info = manager.getConnectionInfo();
+                String address = info.getMacAddress().replaceAll(":","");
+
+                getCommunicator().sendMessage("0005:"+address+":"+android.os.Build.MODEL, desktopIP);
                 break;
             case "0007":
                 MainActivity.getInstance().updateDsktopIP(desktopIP);

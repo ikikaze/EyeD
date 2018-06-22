@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Message;
 import android.os.StrictMode;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -143,6 +144,13 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("type", Utils.Type.PERMIS.name());
                 break;
             case R.id.btnPass:
+                // ping desktop
+                Message msg = new Message();
+                Bundle data = new Bundle();
+                data.putString("destination", getConnectionIP());
+                data.putString("message", "ping");
+                msg.setData(data);
+                CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
                 break;
             case R.id.btnSearch:
                 break;
@@ -156,7 +164,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void pairingSuccessful(String desktopMAC) {
         saveNewConnection(getConnectionName(), getConnectionIP(), desktopMAC);
-        resetConnectionButtonText();
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                resetConnectionButtonText();
+
+            }
+        });
+
     }
 
     public void updateDsktopIP(String desktopIP) {

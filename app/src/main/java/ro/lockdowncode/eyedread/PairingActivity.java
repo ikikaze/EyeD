@@ -80,8 +80,8 @@ public class PairingActivity extends AppCompatActivity {
             }
         });
 
-        addDesktopClient("Adi-Desktop","192.168.100.8", "");
-        addDesktopClient("Toni-Desktop","192.168.0.104", "");
+        addDesktopClient("Dummy-Desktop-1","192.168.69.1", "");
+        addDesktopClient("Dummy-Desktop-2","192.168.69.2", "");
 
         new Thread(new Runnable() {
             @Override
@@ -116,7 +116,7 @@ public class PairingActivity extends AppCompatActivity {
                 public void run() {
                     boolean exists = false;
                     for (int i=0; i<adapter.getCount(); i++) {
-                        if (adapter.getItem(i).getMac().equals(mac)) {
+                        if (adapter.getItem(i).getIp().equals(ip)) {
                             exists = true;
                         }
                     }
