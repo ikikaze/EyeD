@@ -9,4 +9,6 @@ public interface MessageListener {
 
     void hostUnavailable(String host);
 
+    void photoTransferStatus(ClientSocket.DESKTOP_RESPONSE response);
+
 }

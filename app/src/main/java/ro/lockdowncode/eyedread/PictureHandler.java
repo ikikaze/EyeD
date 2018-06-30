@@ -3,9 +3,12 @@ package ro.lockdowncode.eyedread;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -18,7 +21,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import ro.lockdowncode.eyedread.Utils.Type;
-
+import ro.lockdowncode.eyedread.communication.CommunicationService;
+import ro.lockdowncode.eyedread.communication.Communicator;
 
 
 public class PictureHandler {
@@ -91,10 +95,14 @@ public class PictureHandler {
     }
 
 
-    public void sendPictureToPC(final byte[] data)
-    {
-
-        //ADD SENDING LOGIC HERE
+    public void sendPictureToPC(final byte[] photoData) {
+        Message msg = new Message();
+        Bundle data = new Bundle();
+        data.putString("destination", MainActivity.getInstance().getConnectionIP());
+        data.putByteArray("photoData", photoData);
+        data.putString("action", "imageTransfer");
+        msg.setData(data);
+        CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
     }
 
 
