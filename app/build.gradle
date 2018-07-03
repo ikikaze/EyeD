@@ -23,7 +23,7 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.android.support:design:27.1.1'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
@@ -37,5 +37,6 @@ dependencies {
     implementation 'com.madgag.spongycastle:prov:1.54.0.0'
     implementation 'edu.ucar:jj2000:5.2'
     implementation 'com.github.mhshams:jnbis:1.1.0'
+    implementation 'com.google.android.gms:play-services-vision:15.0.2'
 
 }

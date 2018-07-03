@@ -145,12 +145,13 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.btnPass:
                 // ping desktop
-                Message msg = new Message();
-                Bundle data = new Bundle();
-                data.putString("destination", getConnectionIP());
-                data.putString("message", "ping");
-                msg.setData(data);
-                CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
+//                Message msg = new Message();
+//                Bundle data = new Bundle();
+//                data.putString("destination", getConnectionIP());
+//                data.putString("message", "ping");
+//                msg.setData(data);
+//                CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
+                intent = new Intent(this,PassportOCRActivity.class);
                 break;
             case R.id.btnSearch:
                 break;

@@ -9,7 +9,6 @@
         android:name="android.hardware.camera"
         android:required="true" />
     <uses-feature android:name="android.hardware.camera2.full" />
-
     <uses-feature
         android:name="android.hardware.wifi"
         android:required="true" />
@@ -38,16 +37,16 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".LicenseActivity"
             android:configChanges="orientation"
-            android:screenOrientation="landscape"
-            android:parentActivityName=".MainActivity2">
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="landscape"></activity>
 
-        </activity>
         <service
             android:name=".communication.CommunicationService"
             android:exported="false" />
@@ -60,7 +59,14 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
-        <activity android:name=".PairingActivity" android:noHistory="true"/>
+
+        <activity
+            android:name=".PairingActivity"
+            android:noHistory="true" />
+        <activity android:name=".PassportOCRActivity"
+            android:configChanges="orientation"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="landscape"></activity>
     </application>
 
 </manifest>

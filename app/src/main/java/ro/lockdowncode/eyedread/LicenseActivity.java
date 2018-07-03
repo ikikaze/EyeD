@@ -1,6 +1,7 @@
 package ro.lockdowncode.eyedread;
 
 import android.Manifest;
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -104,6 +105,18 @@ public class LicenseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_license);
+
+        View decorView = getWindow().getDecorView();
+// Hide the status bar.
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+// Remember that you should never show the action bar if the
+// status bar is hidden, so hide that too if necessary.
+        ActionBar actionBar = getActionBar();
+        if(actionBar != null)
+            actionBar.hide();
+
+
         mCameraView = findViewById(R.id.camera);
         if (mCameraView != null) {
             mCameraView.addCallback(mCallback);
