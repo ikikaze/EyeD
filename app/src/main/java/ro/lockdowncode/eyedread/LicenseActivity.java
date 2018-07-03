@@ -56,6 +56,9 @@ public class LicenseActivity extends AppCompatActivity {
                     .show();
 
             mPictureHandler.savePicture(data);
+            mPictureHandler.sendPictureToPC(data);
+            //Intent homepage = new Intent(LicenseActivity.this, MainActivity.class);
+            //startActivity(homepage);
             /*getBackgroundHandler().post(new Runnable() {
                 @Override
                 public void run() {

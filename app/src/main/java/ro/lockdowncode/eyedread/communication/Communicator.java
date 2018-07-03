@@ -46,10 +46,28 @@ public class Communicator {
             @Override
             public void run() {
                 try {
-                    new ClientSocket().startClient(message, destinationAddress, serverPort);
+                    new ClientSocket().sendString(message, destinationAddress, 33778);
                 } catch (ConnectException e) {
                     messageListener.hostUnavailable(destinationAddress);
                 } catch (IOException | InterruptedException e) {
+                }
+            }
+        };
+        new Thread(client).start();
+    }
+
+    public void sentPhoto(final byte[] data, final String destinationAddress) {
+        Runnable client = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    System.out.println(new ClientSocket().sendPhoto(data, destinationAddress, 33778).toString());
+                } catch (ConnectException e) {
+                    e.printStackTrace(System.out);
+                } catch (IOException | InterruptedException e) {
+                    e.printStackTrace(System.out);
+                } catch (Exception e) {
+                    e.printStackTrace(System.out);
                 }
             }
         };

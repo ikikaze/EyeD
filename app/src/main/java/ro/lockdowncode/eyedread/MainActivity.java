@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.StrictMode;
@@ -15,6 +16,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 
+import ro.lockdowncode.eyedread.communication.ClientSocket;
 import ro.lockdowncode.eyedread.communication.CommunicationService;
 
 public class MainActivity extends AppCompatActivity {
@@ -62,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private void handleConnectBtnClik() {
         if (getConnStatus() == CONNECTION_STATUS.CONNECTED) {
             handleConnectionStatusClick_Connected(false);
-        } else if (getConnStatus() == CONNECTION_STATUS.WAITTING) {
+        } else if (getConnStatus() == CONNECTION_STATUS.WAITING) {
             handleConnectionStatusClick_Connected(true);
         } else {
             Intent homepage = new Intent(MainActivity.this, PairingActivity.class);
@@ -77,12 +79,21 @@ public class MainActivity extends AppCompatActivity {
         if (connDialog != null) {
             connDialog.dismiss();
         }
+        if (getConnStatus() == CONNECTION_STATUS.CONNECTED && CommunicationService.uiMessageReceiverHandler != null) {
+            // ping desktop
+            Message msg = new Message();
+            Bundle data = new Bundle();
+            data.putString("destination", getConnectionIP());
+            data.putString("message", "0012:" + Build.SERIAL + ":Ping");
+            msg.setData(data);
+            CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
+        }
     }
 
     public void resetConnectionButtonText() {
         if (getConnStatus() == CONNECTION_STATUS.CONNECTED) {
             btnConnect.setText("Connected to "+getConnectionName());
-        } else if (getConnStatus() == CONNECTION_STATUS.WAITTING) {
+        } else if (getConnStatus() == CONNECTION_STATUS.WAITING) {
             btnConnect.setText("Waiting for connection to "+getConnectionName());
         } else {
             btnConnect.setText("Connect to desktop");
@@ -179,9 +190,39 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateDsktopIP(String desktopIP) {
         saveNewConnection(getConnectionName(), desktopIP, getConnectionMAC());
+        setConnectionVisibility(true);
     }
 
-    public enum CONNECTION_STATUS { UNCONNECTED, WAITTING, CONNECTED};
+    public void setConnectionVisibility(final boolean connectionVisibility) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (getConnStatus() == CONNECTION_STATUS.CONNECTED) {
+                    String vis = (connectionVisibility) ? "ON":"OFF";
+                    String text = btnConnect.getText().toString();
+                    String[] msgChunks = text.split(":");
+                    String stat = msgChunks[0];
+                    String finalText;
+                    if (!stat.equals("ON") && !stat.equals("OFF")) {
+                        finalText = vis + ":"+stat;
+                    } else {
+                        finalText = vis + ":"+msgChunks[1];
+                    }
+                    btnConnect.setText(finalText);
+                }
+            }});
+
+    }
+
+    public void showStatus(ClientSocket.DESKTOP_RESPONSE response) {
+
+        new AlertDialog.Builder(MainActivity.getInstance())
+                .setTitle("Photo Transfer Status")
+                .setMessage(response.toString())
+                .setIcon(android.R.drawable.ic_dialog_alert).show();
+    }
+
+    public enum CONNECTION_STATUS { UNCONNECTED, WAITING, CONNECTED};
 
     public CONNECTION_STATUS getConnStatus() {
         SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
@@ -193,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
             if (connMAC != null && !connMAC.isEmpty()) {
                 return CONNECTION_STATUS.CONNECTED;
             }
-            return CONNECTION_STATUS.WAITTING;
+            return CONNECTION_STATUS.WAITING;
         }
         return CONNECTION_STATUS.UNCONNECTED;
     }
