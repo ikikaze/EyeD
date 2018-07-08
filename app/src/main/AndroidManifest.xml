@@ -45,7 +45,7 @@
             android:name=".LicenseActivity"
             android:configChanges="orientation"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="landscape"></activity>
+            android:screenOrientation="landscape" />
 
         <service
             android:name=".communication.CommunicationService"
@@ -63,10 +63,19 @@
         <activity
             android:name=".PairingActivity"
             android:noHistory="true" />
-        <activity android:name=".PassportOCRActivity"
+        <activity
+            android:name=".PassportOCRActivity"
             android:configChanges="orientation"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="landscape"></activity>
-    </application>
+            android:screenOrientation="landscape" />
+        <activity android:name=".NFCActivity">
+            <intent-filter>
+                <action android:name="android.nfc.action.TECH_DISCOVERED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.nfc.action.TECH_DISCOVERED"
+                android:resource="@xml/nfc_tech_filter" />
+        </activity>
+</application>
 
 </manifest>

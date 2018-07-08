@@ -15,6 +15,7 @@
  */
 package ro.lockdowncode.eyedread.ocr;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.util.Log;
@@ -23,11 +24,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.vision.Detector;
-import com.google.android.gms.vision.text.Line;
 import com.google.android.gms.vision.text.TextBlock;
 
-import ro.lockdowncode.eyedread.R;
-import ro.lockdowncode.eyedread.UI.GraphicOverlay;
+import ro.lockdowncode.eyedread.NFCActivity;
 
 /**
  * A very simple Processor which gets detected TextBlocks and adds them to the overlay
@@ -42,6 +41,10 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
 
     private int[] processingBox;
 
+    private String passNumber,passBday,passExpDate;
+
+    private int repetitionsFound = 0;
+
     public OcrDetectorProcessor(LinearLayout mrzArea,int[] widthHeight)
     {
         this.mrzArea = mrzArea;
@@ -49,10 +52,33 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
         top = (TextView)mrzArea.getChildAt(0);
         bottom = (TextView)mrzArea.getChildAt(1);
 
+
         processingBox = new int[4];
         this.widthHeight = widthHeight;
     }
 
+
+    private void checkNumbersConsistency(String number,String bDay, String expDate)
+    {
+
+        if(number.equals(passNumber) && bDay.equals(passBday) && expDate.equals(passExpDate) )
+            repetitionsFound =repetitionsFound+1;
+        else
+        {
+            passNumber=number;
+            passBday = bDay;
+            passExpDate = expDate;
+            repetitionsFound = 0;
+        }
+
+        if (repetitionsFound == 2)
+        {
+            Log.d("OcrDetectorProcessor", "Found same numbers twice in a row, start nfc and shit");
+            repetitionsFound = 0;
+        }
+
+
+    }
 
 
     private void setProcessingArea()
@@ -115,7 +141,7 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
                     String[] splitted = item.getValue().split("\\n");
                     if(splitted.length == 2)
                     {
-                        top.setText(splitted[0]);
+                        //top.setText(splitted[0]);
 
                         splitted[1] = splitted[1].replaceAll("\\s","");
                         //bottom.setText(splitted[1]);
@@ -123,6 +149,22 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
                             if(splitted[1].charAt(44-3) == '<') {
                                 Log.d("OcrDetectorProcessor", "bottom line length is" + splitted[1].length());
                                 bottom.setText(splitted[1]);
+                                passNumber = splitted[1].substring(0,9);
+                                //12
+                                passBday = splitted[1].substring(13,19);
+                                passExpDate = splitted[1].substring(21,27);
+                                Log.d("OcrDetectorProcessor","number " + passNumber + " bday " + passBday + " expdate " + passExpDate);
+                                //checkNumbersConsistency(passNumber,passBday,passExpDate);
+
+                                Intent intent = new Intent(mrzArea.getContext(), NFCActivity.class);
+                                intent.putExtra("Number",passNumber);
+                                intent.putExtra("Bday",passBday);
+                                intent.putExtra("ExpDate",passExpDate);
+
+                                mrzArea.getContext().startActivity(intent);
+
+
+
                         }
                     }
                 }

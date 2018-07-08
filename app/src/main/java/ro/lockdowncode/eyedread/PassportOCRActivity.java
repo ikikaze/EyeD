@@ -238,7 +238,7 @@ public final class PassportOCRActivity extends AppCompatActivity {
                         .setFacing(CameraSource.CAMERA_FACING_BACK)
                         .setRequestedPreviewSize(1280, 1024)
                         .setAutoFocusEnabled(true)
-                        .setRequestedFps(2.0f)
+                        .setRequestedFps(3.0f)
                         .build();
     }
 
