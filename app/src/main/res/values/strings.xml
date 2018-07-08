@@ -30,4 +30,5 @@
     <string name="ocr_failure">No text captured</string>
     <string name="ocr_error">"Error reading text: %1$s"</string>
     <string name="MRZ_hint">\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c</string>
+    <string name="DUMPinfo">PRENUME\nNUME\nSEX\nTARA EMITERE\nNATIONALITATE\nDATA EXPIRARII\nDATA NASTERII\nCODPASAPORT\nSERIE\nCNP</string>
 </resources>

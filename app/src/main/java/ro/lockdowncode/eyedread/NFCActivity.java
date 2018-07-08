@@ -15,7 +15,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import net.sf.scuba.smartcards.CardFileInputStream;
 import net.sf.scuba.smartcards.CardService;
@@ -30,13 +32,16 @@ import org.jmrtd.lds.DG2File;
 import org.jmrtd.lds.FaceImageInfo;
 import org.jmrtd.lds.FaceInfo;
 import org.jmrtd.lds.LDS;
+import org.jmrtd.lds.LDSFile;
 import org.jmrtd.lds.MRZInfo;
 import org.jmrtd.lds.PACEInfo;
 import org.jmrtd.lds.SODFile;
+import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.InputStream;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -50,6 +55,7 @@ public class NFCActivity extends AppCompatActivity {
     static final String TAG = "NFCActivity";
 
     TextView txt;
+    ProgressBar loadingbar;
     String passNumber, passExpDate, passBDay;
 
 
@@ -58,6 +64,12 @@ public class NFCActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nfc);
         txt = findViewById(R.id.tmpTxt);
+        loadingbar = findViewById(R.id.progressBar);
+
+        loadingbar.setVisibility(View.INVISIBLE);
+
+
+        Security.insertProviderAt(new BouncyCastleProvider(), 1);
         Intent intent = getIntent();
 
         passNumber = intent.getStringExtra("Number");
@@ -77,16 +89,13 @@ public class NFCActivity extends AppCompatActivity {
                         && passExpDate != null && !passExpDate.isEmpty()
                         && passBDay != null && !passBDay.isEmpty()) {
                     BACKeySpec bacKey = new BACKey(passNumber, passBDay, passExpDate);
-
-
+                    new ReadTask(IsoDep.get(tag), bacKey).execute();
+                    //mainLayout.setVisibility(View.GONE);
+                    //loadingLayout.setVisibility(View.VISIBLE);
+                } else {
+                    Snackbar.make(txt, "BAD INPUT DATA", Snackbar.LENGTH_SHORT).show();
                 }
-//                    new ReadTask(IsoDep.get(tag), bacKey).execute();
-//                    mainLayout.setVisibility(View.GONE);
-//                    loadingLayout.setVisibility(View.VISIBLE);
-//                } else {
-//                    Snackbar.make(passportNumberView, R.string.error_input, Snackbar.LENGTH_SHORT).show();
-//                }
-                txt.setText("FOUND IT BOIII");
+                //txt.setText("FOUND IT BOIII");
 
             }
         }
@@ -141,8 +150,12 @@ public class NFCActivity extends AppCompatActivity {
         protected Exception doInBackground(Void... params) {
             try {
 
+
+                loadingbar.setVisibility(View.VISIBLE);
+                txt.setText("STAI HO CA MA INCARC, NU MA MISCA");
+
                 CardService cardService = CardService.getInstance(isoDep);
-                cardService.open();
+                //cardService.open();
 
                 PassportService service = new PassportService(cardService);
                 service.open();
@@ -221,20 +234,20 @@ public class NFCActivity extends AppCompatActivity {
             //mainLayout.setVisibility(View.VISIBLE);
             //loadingLayout.setVisibility(View.GONE);
 
-            Snackbar.make()
 
 
 
-//            if (result == null) {
+
+           if (result == null) {
 //
-//                Intent intent;
-//                if (getCallingActivity() != null) {
-//                    intent = new Intent();
-//                } else {
-//                    intent = new Intent(NFCActivity.this, ResultActivity.class);
-//                }
+                Intent intent;
+                if (getCallingActivity() != null) {
+                    intent = new Intent();
+                } else {
+                    intent = new Intent(NFCActivity.this, NFCResultActivity.class);
+                }
 //
-//                MRZInfo mrzInfo = dg1File.getMRZInfo();
+//
 //
 //                intent.putExtra(ResultActivity.KEY_FIRST_NAME, mrzInfo.getSecondaryIdentifier().replace("<", ""));
 //                intent.putExtra(ResultActivity.KEY_LAST_NAME, mrzInfo.getPrimaryIdentifier().replace("<", ""));
@@ -242,29 +255,54 @@ public class NFCActivity extends AppCompatActivity {
 //                intent.putExtra(ResultActivity.KEY_STATE, mrzInfo.getIssuingState());
 //                intent.putExtra(ResultActivity.KEY_NATIONALITY, mrzInfo.getNationality());
 //
-//                if (bitmap != null) {
-//                    double ratio = 320.0 / bitmap.getHeight();
-//                    int targetHeight = (int) (bitmap.getHeight() * ratio);
-//                    int targetWidth = (int) (bitmap.getWidth() * ratio);
-//
-//                    intent.putExtra(ResultActivity.KEY_PHOTO,
-//                            Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, false));
-//                }
-//
+             MRZInfo mrzInfo = dg1File.getMRZInfo();
+
+             String secondaryID = mrzInfo.getSecondaryIdentifier().replace("<", " ");
+             String primaryID = mrzInfo.getPrimaryIdentifier().replace("<"," ");
+             String gender = mrzInfo.getGender().toString();
+             String issuingState = mrzInfo.getIssuingState();
+             String nationality = mrzInfo.getNationality();
+             String expDate = mrzInfo.getDateOfExpiry();
+             String birthDate = mrzInfo.getDateOfBirth();
+             String passCode = mrzInfo.getDocumentCode();
+             String passNumber = mrzInfo.getDocumentNumber();
+             String cnp = mrzInfo.getPersonalNumber();
+
+             intent.putExtra(NFCResultActivity.KEY_FIRST_NAME,secondaryID);
+             intent.putExtra(NFCResultActivity.KEY_LAST_NAME,primaryID);
+             intent.putExtra(NFCResultActivity.KEY_GENDER,gender);
+             intent.putExtra(NFCResultActivity.KEY_STATE,issuingState);
+             intent.putExtra(NFCResultActivity.KEY_NATION,nationality);
+             intent.putExtra(NFCResultActivity.KEY_EXP_DATE,expDate);
+             intent.putExtra(NFCResultActivity.KEY_BDAY,birthDate);
+             intent.putExtra(NFCResultActivity.KEY_PASS_NUM,passNumber);
+             intent.putExtra(NFCResultActivity.KEY_PASS_CODE,passCode);
+             intent.putExtra(NFCResultActivity.KEY_CNP,cnp);
+
+
+
+
+              if (bitmap != null) {
+                    double ratio = 320.0 / bitmap.getHeight();
+                    int targetHeight = (int) (bitmap.getHeight() * ratio);
+                    int targetWidth = (int) (bitmap.getWidth() * ratio);
+
+                    intent.putExtra(NFCResultActivity.KEY_PHOTO,
+                            Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, false));
+                }
+
 //                if (getCallingActivity() != null) {
 //                    setResult(Activity.RESULT_OK, intent);
 //                    finish();
 //                } else {
-//                    startActivity(intent);
+                    startActivity(intent);
 //                }
-//
-//            } else {
-//                Snackbar.make(passportNumberView, exceptionStack(result), Snackbar.LENGTH_LONG).show();
-//            }
-//        }
+
+            }
+        }
 
     }
 
 }
 
-}
+
