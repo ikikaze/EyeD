@@ -3,7 +3,6 @@ package ro.lockdowncode.eyedread;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -22,7 +21,6 @@ import java.util.Date;
 
 import ro.lockdowncode.eyedread.Utils.Type;
 import ro.lockdowncode.eyedread.communication.CommunicationService;
-import ro.lockdowncode.eyedread.communication.Communicator;
 
 
 public class PictureHandler {

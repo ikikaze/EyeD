@@ -1,6 +1,8 @@
 package ro.lockdowncode.eyedread.communication;
 
 
+import android.util.Log;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -30,12 +32,10 @@ public class MultiCastSender extends Thread {
         try {
             DatagramSocket socket = new DatagramSocket();
             socket.setBroadcast(true);
-
             byte[] buffer = message.getBytes();
-
-            DatagramPacket packet
-                    = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(broadcastIp), broadcastPort);
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, InetAddress.getByName(broadcastIp), broadcastPort);
             socket.send(packet);
+            Log.d(MultiCastSender.class.getName(), "Sending multicast message (" + message + ") to ip "+broadcastIp);
             socket.close();
 
         } catch (Exception e) {

@@ -1,10 +1,7 @@
 package ro.lockdowncode.eyedread.communication;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,7 +9,9 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
+import ro.lockdowncode.eyedread.LicenseActivity;
 import ro.lockdowncode.eyedread.MainActivity;
 import ro.lockdowncode.eyedread.PairingActivity;
 import ro.lockdowncode.eyedread.Utils;
@@ -31,23 +30,23 @@ public class CommunicationService extends Service implements MessageListener {
 
     public static Handler uiMessageReceiverHandler = null;
 
-    private Communicator communicator;
+    private DesktopCommunicator desktopCommunicator;
 
-    public Communicator getCommunicator() {
+    public DesktopCommunicator getDesktopCommunicator() {
         if (Utils.checkWifiOnAndConnected(getApplicationContext())) {
-            if (communicator == null) {
-                communicator = new Communicator(getIpAddress(), COMMUNICATION_PORT, this);
+            if (desktopCommunicator == null) {
+                desktopCommunicator = new DesktopCommunicator(getIpAddress(), COMMUNICATION_PORT, this);
             }
         } else {
-            if (communicator != null) {
-                communicator.finish();
+            if (desktopCommunicator != null) {
+                desktopCommunicator.finish();
             }
-            communicator = null;
+            desktopCommunicator = null;
         }
         if (MainActivity.getInstance() != null) {
-            //MainActivity.getInstance().notifyWifiOff();
+            MainActivity.getInstance().notifyWifiOff();
         }
-        return communicator;
+        return desktopCommunicator;
     }
 
     @Nullable
@@ -58,7 +57,7 @@ public class CommunicationService extends Service implements MessageListener {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        getCommunicator();
+        getDesktopCommunicator();
         new UIMessageReceiver().start();
         // We need to return if we want to handle this service explicitly.
         return START_STICKY;
@@ -92,15 +91,17 @@ public class CommunicationService extends Service implements MessageListener {
                 //here we will receive messages from activity(using sendMessage() from activity)
                 public void handleMessage(Message msg)
                 {
-                    Bundle data = msg.getData();
-                    String dest = data.getString("destination");
-                    String action = data.getString("action");
+                    if (getDesktopCommunicator() != null) {
+                        Bundle data = msg.getData();
+                        String dest = data.getString("destination");
+                        String action = data.getString("action");
 
-                    if (action!=null && action.equalsIgnoreCase("imageTransfer")) {
-                        byte[] imageData = data.getByteArray("photoData");
-                        getCommunicator().sentPhoto(imageData, dest);
-                    } else {
-                        getCommunicator().sendMessage(data.getString("message"), data.getString("destination"));
+                        if (action!=null && action.equalsIgnoreCase("imageTransfer")) {
+                            byte[] imageData = data.getByteArray("photoData");
+                            getDesktopCommunicator().sendPhoto(imageData, dest);
+                        } else {
+                            getDesktopCommunicator().sendMessage(data.getString("message"), data.getString("destination"));
+                        }
                     }
                 }
             };
@@ -123,7 +124,10 @@ public class CommunicationService extends Service implements MessageListener {
                 desktopMAC = msgChunks[1];
                 MainActivity.getInstance().pairingSuccessful(desktopMAC);
                 // send mac to desktop
-                getCommunicator().sendMessage("0005:"+ Build.SERIAL+":"+android.os.Build.MODEL, desktopIP);
+                getDesktopCommunicator().sendMessage("0005:"+ Build.SERIAL+":"+android.os.Build.MODEL, desktopIP);
+                break;
+            case "0004": // DESKTOP BUSY
+                desktopBusy(desktopIP);
                 break;
             case "0007":
                 MainActivity.getInstance().updateDsktopIP(desktopIP);
@@ -131,21 +135,30 @@ public class CommunicationService extends Service implements MessageListener {
             case "0009":
                 System.out.println(msgChunks[1]);
                 break;
+            case "0011": // START CAMERA FROM DESKTOP 0011:desktopId:StartCamera:tipAct(1,2,3)
+                Intent intentHome = new Intent(getApplicationContext(), LicenseActivity.class);
+                intentHome.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intentHome.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intentHome.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                intentHome.putExtra("type", Utils.Type.BULETIN.name());
+                startActivity(intentHome);
+                break;
+
             case "0012":
                 desktopMAC = msgChunks[1];
                 String cmd = msgChunks[2];
                 if (cmd.equalsIgnoreCase("available") && desktopMAC.equals(MainActivity.getInstance().getConnectionMAC())) {
                     MainActivity.getInstance().setConnectionVisibility(true);
                 } else if (cmd.equalsIgnoreCase("ping") && desktopMAC.equals(MainActivity.getInstance().getConnectionMAC())) {
-                    getCommunicator().sendMessage("0012:" + Build.SERIAL + ":Ping", desktopIP);
+                    getDesktopCommunicator().sendMessage("0012:" + Build.SERIAL + ":Ping", desktopIP);
                 }
                 break;
-
         }
     }
 
     @Override
     public void hostUnavailable(String hostIP) {
+        Log.d(CommunicationService.class.getName(), "Host unavailable");
         if (MainActivity.getInstance().getConnStatus() == MainActivity.CONNECTION_STATUS.CONNECTED) {
             MainActivity.getInstance().setConnectionVisibility(false);
             String multicastMessage = "0006:09fe5d9775f04a4b8b9b081a8e732bae:"+Build.SERIAL;
@@ -154,9 +167,8 @@ public class CommunicationService extends Service implements MessageListener {
     }
 
     @Override
-    public void photoTransferStatus(ClientSocket.DESKTOP_RESPONSE response) {
-        MainActivity.getInstance().showStatus(response);
-
+    public void desktopBusy(String destinationAddress) {
+        MainActivity.getInstance().desktopBusy();
     }
 
 }

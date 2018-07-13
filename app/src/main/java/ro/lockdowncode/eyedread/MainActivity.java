@@ -34,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     private Button btnConnect;
 
     private Dialog connDialog;
+    private AlertDialog wifiAlertDialog;
+    private AlertDialog desktopBusy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +81,12 @@ public class MainActivity extends AppCompatActivity {
         if (connDialog != null) {
             connDialog.dismiss();
         }
+        if (wifiAlertDialog != null) {
+            wifiAlertDialog.dismiss();
+        }
+        if (desktopBusy != null) {
+            desktopBusy.dismiss();
+        }
         if (getConnStatus() == CONNECTION_STATUS.CONNECTED && CommunicationService.uiMessageReceiverHandler != null) {
             // ping desktop
             Message msg = new Message();
@@ -88,6 +96,24 @@ public class MainActivity extends AppCompatActivity {
             msg.setData(data);
             CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        /*runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+
+                if (wifiAlertDialog != null) {
+                    wifiAlertDialog.dismiss();
+                }
+
+            }
+        });*/
+
     }
 
     public void resetConnectionButtonText() {
@@ -214,12 +240,51 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void showStatus(ClientSocket.DESKTOP_RESPONSE response) {
+    public void showStatus(String response) {
 
         new AlertDialog.Builder(MainActivity.getInstance())
                 .setTitle("Photo Transfer Status")
-                .setMessage(response.toString())
+                .setMessage(response)
                 .setIcon(android.R.drawable.ic_dialog_alert).show();
+    }
+
+
+    public void notifyWifiOff() {
+        if(!Utils.checkWifiOnAndConnected(this)) {
+            runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    if (wifiAlertDialog == null) {
+                        wifiAlertDialog = new AlertDialog.Builder(MainActivity.getInstance())
+                                .setTitle("Wifi is off")
+                                .setMessage("Please turn on wifi to be able to communicate with desktop app")
+                                .setIcon(android.R.drawable.ic_dialog_alert).create();
+                    }
+                    if (!wifiAlertDialog.isShowing()) {
+                        wifiAlertDialog.show();
+                    }
+                }
+            });
+        }
+    }
+
+    public void desktopBusy() {
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                if (desktopBusy == null) {
+                    desktopBusy = new AlertDialog.Builder(MainActivity.getInstance())
+                            .setTitle("Desktop is busy")
+                            .setMessage("Please try again later")
+                            .setIcon(android.R.drawable.ic_dialog_alert).create();
+                }
+                if (!desktopBusy.isShowing()) {
+                    desktopBusy.show();
+                }
+            }
+        });
     }
 
     public enum CONNECTION_STATUS { UNCONNECTED, WAITING, CONNECTED};

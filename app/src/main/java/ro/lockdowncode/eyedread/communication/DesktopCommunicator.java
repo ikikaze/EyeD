@@ -1,21 +1,24 @@
 package ro.lockdowncode.eyedread.communication;
 
+import android.os.Build;
+
 import java.io.IOException;
 import java.net.ConnectException;
+import java.nio.ByteBuffer;
 import java.nio.channels.ClosedSelectorException;
 
 /**
  * Created by Adi Neag on 05.05.2018.
  */
 
-public class Communicator {
+public class DesktopCommunicator {
 
     private final int serverPort;
     private final MessageListener messageListener;
     private final Thread serverThread;
     private ServerSocket serverSocket;
 
-    public Communicator(final String serverAddress, final int port, final MessageListener listener) {
+    public DesktopCommunicator(final String serverAddress, final int port, final MessageListener listener) {
         serverPort = port;
         messageListener = listener;
         Runnable server = new Runnable() {
@@ -45,29 +48,46 @@ public class Communicator {
         Runnable client = new Runnable() {
             @Override
             public void run() {
+                ClientSocket clientSocket = null;
                 try {
-                    new ClientSocket().sendString(message, destinationAddress, 33778);
+                    clientSocket = new ClientSocket(destinationAddress, 33778);
+                    clientSocket.sendString(message);
                 } catch (ConnectException e) {
                     messageListener.hostUnavailable(destinationAddress);
                 } catch (IOException | InterruptedException e) {
+                } finally {
+                    if (clientSocket != null) {
+                        clientSocket.close();
+                    }
                 }
             }
         };
         new Thread(client).start();
     }
 
-    public void sentPhoto(final byte[] data, final String destinationAddress) {
+    public void sendPhoto(final byte[] data, final String destinationAddress) {
         Runnable client = new Runnable() {
             @Override
             public void run() {
+                ClientSocket clientSocket = null;
                 try {
-                    System.out.println(new ClientSocket().sendPhoto(data, destinationAddress, 33778).toString());
+                    clientSocket = new ClientSocket(destinationAddress, 33778);
+                    String resp = clientSocket.sendString("0008:"+ Build.SERIAL+":PrepareReceivePicture:1");
+                    if (resp.equalsIgnoreCase("0009:ReadyToReceivePicture")) {
+                        long length = data.length;
+                        clientSocket.sendString("0009:"+length);
+                        clientSocket.sendByteArray(data);
+                    } else if (resp.equalsIgnoreCase("0004:Busy")) {
+                        messageListener.desktopBusy(destinationAddress);
+                    }
                 } catch (ConnectException e) {
-                    e.printStackTrace(System.out);
+                    messageListener.hostUnavailable(destinationAddress);
                 } catch (IOException | InterruptedException e) {
                     e.printStackTrace(System.out);
-                } catch (Exception e) {
-                    e.printStackTrace(System.out);
+                } finally {
+                    if (clientSocket != null) {
+                        clientSocket.close();
+                    }
                 }
             }
         };

@@ -80,9 +80,6 @@ public class PairingActivity extends AppCompatActivity {
             }
         });
 
-        addDesktopClient("Dummy-Desktop-1","192.168.69.1", "");
-        addDesktopClient("Dummy-Desktop-2","192.168.69.2", "");
-
         new Thread(new Runnable() {
             @Override
             public void run() {

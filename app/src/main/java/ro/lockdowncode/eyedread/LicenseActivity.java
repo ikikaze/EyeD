@@ -18,6 +18,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.google.android.cameraview.CameraView;
@@ -34,6 +36,7 @@ public class LicenseActivity extends AppCompatActivity {
     private static final int REQUEST_CAMERA_PERMISSION = 1;
     private static final String FRAGMENT_DIALOG = "dialog";
     private PictureHandler mPictureHandler;
+    private Window wind;
 
 
     private CameraView.Callback mCallback
@@ -57,8 +60,9 @@ public class LicenseActivity extends AppCompatActivity {
 
             mPictureHandler.savePicture(data);
             mPictureHandler.sendPictureToPC(data);
-            //Intent homepage = new Intent(LicenseActivity.this, MainActivity.class);
-            //startActivity(homepage);
+
+            /*Intent homepage = new Intent(LicenseActivity.this, MainActivity.class);
+            startActivity(homepage);
             /*getBackgroundHandler().post(new Runnable() {
                 @Override
                 public void run() {
@@ -108,6 +112,15 @@ public class LicenseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_license);
+
+        // wakes up device if screen is locked
+        wind = this.getWindow();
+        wind.addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+        wind.addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED);
+        wind.addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        wind.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        wind.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 
         View decorView = getWindow().getDecorView();
 // Hide the status bar.
