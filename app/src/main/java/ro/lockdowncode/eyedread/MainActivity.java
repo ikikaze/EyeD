@@ -1,10 +1,8 @@
 package ro.lockdowncode.eyedread;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
@@ -16,8 +14,12 @@ import android.widget.Button;
 import android.widget.TextView;
 
 
-import ro.lockdowncode.eyedread.communication.ClientSocket;
+import java.util.Date;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
 import ro.lockdowncode.eyedread.communication.CommunicationService;
+import ro.lockdowncode.eyedread.pairing.PairingActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -91,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
             // ping desktop
             Message msg = new Message();
             Bundle data = new Bundle();
-            data.putString("destination", getConnectionIP());
+            data.putString("destination", getActiveDesktopConnection().getIp());
             data.putString("message", "0012:" + Build.SERIAL + ":Ping");
             msg.setData(data);
             CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
@@ -118,9 +120,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void resetConnectionButtonText() {
         if (getConnStatus() == CONNECTION_STATUS.CONNECTED) {
-            btnConnect.setText("Connected to "+getConnectionName());
+            btnConnect.setText("Connected to "+getActiveDesktopConnection().getName());
         } else if (getConnStatus() == CONNECTION_STATUS.WAITING) {
-            btnConnect.setText("Waiting for connection to "+getConnectionName());
+            btnConnect.setText("Waiting for connection to "+getActiveDesktopConnection().getName());
         } else {
             btnConnect.setText("Connect to desktop");
         }
@@ -134,9 +136,9 @@ public class MainActivity extends AppCompatActivity {
 
         String status = waiting ? "Connection waiting for ": "Connected to ";
         TextView name = connDialog.findViewById(R.id.connectionName);
-        name.setText(status + getConnectionName());
+        name.setText(status + getActiveDesktopConnection().getName());
         TextView ip = connDialog.findViewById(R.id.connectionIP);
-        ip.setText(getConnectionIP());
+        ip.setText(getActiveDesktopConnection().getIp());
         //TextView mac = connDialog.findViewById(R.id.connectionMAC);
         //mac.setText(getConnectionMAC());
 
@@ -181,13 +183,6 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("type", Utils.Type.PERMIS.name());
                 break;
             case R.id.btnPass:
-                // ping desktop
-//                Message msg = new Message();
-//                Bundle data = new Bundle();
-//                data.putString("destination", getConnectionIP());
-//                data.putString("message", "ping");
-//                msg.setData(data);
-//                CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
                 intent = new Intent(this,PassportOCRActivity.class);
                 break;
             case R.id.btnSearch:
@@ -200,8 +195,8 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
     }
 
-    public void pairingSuccessful(String desktopMAC) {
-        saveNewConnection(getConnectionName(), getConnectionIP(), desktopMAC);
+    public void pairingSuccessful(String desktopID) {
+        saveNewConnection(getActiveDesktopConnection().getName(), getActiveDesktopConnection().getIp(), desktopID, 2);
         runOnUiThread(new Runnable() {
 
             @Override
@@ -215,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateDsktopIP(String desktopIP) {
-        saveNewConnection(getConnectionName(), desktopIP, getConnectionMAC());
+        saveNewConnection(getActiveDesktopConnection().getName(), desktopIP, getActiveDesktopConnection().getId(), 2);
         setConnectionVisibility(true);
     }
 
@@ -290,48 +285,72 @@ public class MainActivity extends AppCompatActivity {
     public enum CONNECTION_STATUS { UNCONNECTED, WAITING, CONNECTED};
 
     public CONNECTION_STATUS getConnStatus() {
-        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        String connName = sharedPref.getString(getString(R.string.connectionName), null);
-        String connIP = sharedPref.getString(getString(R.string.connectionIP), null);
-        String connMAC = sharedPref.getString(getString(R.string.connectionMAC), null);
-
-        if (connName != null && !connName.isEmpty() && connIP != null && !connIP.isEmpty()) {
-            if (connMAC != null && !connMAC.isEmpty()) {
-                return CONNECTION_STATUS.CONNECTED;
-            }
+        DesktopConnection activeDC = getActiveDesktopConnection();
+        if (activeDC == null) {
+            return CONNECTION_STATUS.UNCONNECTED;
+        }
+        if (activeDC.getStatus() == 1) {
             return CONNECTION_STATUS.WAITING;
         }
-        return CONNECTION_STATUS.UNCONNECTED;
+        return CONNECTION_STATUS.CONNECTED;
     }
 
     public void resetConnectionPreferences() {
-        SharedPreferences sharedPref = MainActivity.getInstance().getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.clear();
-        editor.commit();
+        Realm realm = Realm.getDefaultInstance();
+        try {
+            RealmResults<DesktopConnection> r = realm.where(DesktopConnection.class)
+                    .greaterThan("status", 0)
+                    .findAll();
+            realm.beginTransaction();
+            for (DesktopConnection dc: r) {
+                dc.setStatus(0);
+            }
+            realm.commitTransaction();
+        } finally {
+            realm.close();
+        }
     }
 
-    public void saveNewConnection(String name, String ip, String mac) {
-        SharedPreferences sharedPref = MainActivity.getInstance().getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(getString(R.string.connectionName), name);
-        editor.putString(getString(R.string.connectionIP), ip);
-        editor.putString(getString(R.string.connectionMAC), mac);
-        editor.commit();
+    public void saveNewConnection(final String name, final String ip, final String id, final int status) {
+        Realm realm = Realm.getDefaultInstance();
+        try {
+            final RealmResults<DesktopConnection> r = realm.where(DesktopConnection.class)
+                    .equalTo("id", id).or().isNull("id")
+                    .findAll();
+            realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+                    if (!r.isEmpty()) {
+                        DesktopConnection existingDesktopConnection = r.get(0);
+                        existingDesktopConnection.setIp(ip);
+                        existingDesktopConnection.setName(name);
+                        existingDesktopConnection.setStatus(status);
+                        existingDesktopConnection.setLastConnected(new Date());
+                    } else {
+                        DesktopConnection newDesktopConnection = realm.createObject(DesktopConnection.class, id);
+                        newDesktopConnection.setName(name);
+                        newDesktopConnection.setIp(ip);
+                        newDesktopConnection.setStatus(status);
+                        newDesktopConnection.setLastConnected(new Date());
+                    }
+                }
+            });
+        } finally {
+            realm.close();
+        }
     }
 
-    public String getConnectionName() {
-        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        return sharedPref.getString(getString(R.string.connectionName), null);
+    public DesktopConnection getActiveDesktopConnection() {
+        Realm realm = Realm.getDefaultInstance();
+        try {
+            RealmResults<DesktopConnection> r = realm.where(DesktopConnection.class)
+                    .greaterThan("status", 0)
+                    .findAll();
+            if (r.isEmpty()) {return null;}
+            return realm.copyFromRealm(r.get(0));
+        } finally {
+            realm.close();
+        }
     }
 
-    public String getConnectionIP() {
-        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        return sharedPref.getString(getString(R.string.connectionIP), null);
-    }
-
-    public String getConnectionMAC() {
-        SharedPreferences sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        return sharedPref.getString(getString(R.string.connectionMAC), null);
-    }
 }

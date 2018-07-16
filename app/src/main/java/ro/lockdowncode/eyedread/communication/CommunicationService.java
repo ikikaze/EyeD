@@ -13,7 +13,7 @@ import android.util.Log;
 
 import ro.lockdowncode.eyedread.LicenseActivity;
 import ro.lockdowncode.eyedread.MainActivity;
-import ro.lockdowncode.eyedread.PairingActivity;
+import ro.lockdowncode.eyedread.pairing.PairingActivity;
 import ro.lockdowncode.eyedread.Utils;
 
 import static ro.lockdowncode.eyedread.Utils.getIpAddress;
@@ -147,9 +147,9 @@ public class CommunicationService extends Service implements MessageListener {
             case "0012":
                 desktopMAC = msgChunks[1];
                 String cmd = msgChunks[2];
-                if (cmd.equalsIgnoreCase("available") && desktopMAC.equals(MainActivity.getInstance().getConnectionMAC())) {
+                if (cmd.equalsIgnoreCase("available") && desktopMAC.equals(MainActivity.getInstance().getActiveDesktopConnection().getId())) {
                     MainActivity.getInstance().setConnectionVisibility(true);
-                } else if (cmd.equalsIgnoreCase("ping") && desktopMAC.equals(MainActivity.getInstance().getConnectionMAC())) {
+                } else if (cmd.equalsIgnoreCase("ping") && desktopMAC.equals(MainActivity.getInstance().getActiveDesktopConnection().getId())) {
                     getDesktopCommunicator().sendMessage("0012:" + Build.SERIAL + ":Ping", desktopIP);
                 }
                 break;

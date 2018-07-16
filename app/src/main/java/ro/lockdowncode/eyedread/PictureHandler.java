@@ -96,7 +96,7 @@ public class PictureHandler {
     public void sendPictureToPC(final byte[] photoData) {
         Message msg = new Message();
         Bundle data = new Bundle();
-        data.putString("destination", MainActivity.getInstance().getConnectionIP());
+        data.putString("destination", MainActivity.getInstance().getActiveDesktopConnection().getIp());
         data.putByteArray("photoData", photoData);
         data.putString("action", "imageTransfer");
         msg.setData(data);
