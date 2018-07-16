@@ -2,19 +2,25 @@ package ro.lockdowncode.eyedread.pairing;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.Progress;
 import ro.lockdowncode.eyedread.DesktopConnection;
 import ro.lockdowncode.eyedread.MainActivity;
 import ro.lockdowncode.eyedread.R;
@@ -25,6 +31,10 @@ import ro.lockdowncode.eyedread.pairing.tabs.FragmentsPagerAdapter;
 public class PairingActivity extends AppCompatActivity {
 
     private static PairingActivity instance;
+
+    private FloatingActionButton refreshButton;
+
+    private ProgressBar loadingSpinner;
 
     public static PairingActivity getInstance() {
         return instance;
@@ -48,6 +58,14 @@ public class PairingActivity extends AppCompatActivity {
 
         instance = this;
 
+        refreshButton = this.findViewById(R.id.refreshBtn);
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchForDesktops();
+            }
+        });
+        loadingSpinner = this.findViewById(R.id.loadingSpinner);
 
         final ViewPager viewPager = (ViewPager)findViewById(R.id.viewpager);
         viewPager.setAdapter(adapter);
@@ -90,8 +108,13 @@ public class PairingActivity extends AppCompatActivity {
             }
         });
 
-        
+        searchForDesktops();
 
+    }
+
+    public void searchForDesktops() {
+        refreshButton.setVisibility(View.GONE);
+        loadingSpinner.setVisibility(View.VISIBLE);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -104,9 +127,20 @@ public class PairingActivity extends AppCompatActivity {
                     String multicastMessage = "0000:09fe5d9775f04a4b8b9b081a8e732bae:Adi";
                     new MultiCastSender(MainActivity.getInstance(), "255.255.255.255", 33558, multicastMessage).start();
                 }
-                //PairingActivity.this.stopSearching();
+                stopSearching();
             }
         }).start();
+    }
+
+    public void stopSearching() {
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                refreshButton.setVisibility(View.VISIBLE);
+                loadingSpinner.setVisibility(View.GONE);
+            }
+        });
     }
 
     public void addDesktopClient(final String name, final String ip, final String mac) {
@@ -134,11 +168,21 @@ public class PairingActivity extends AppCompatActivity {
         final Dialog dialog = new Dialog(PairingActivity.getInstance());
         dialog.setContentView(R.layout.pin_dialog);
 
-        final TextView pin = dialog.findViewById(R.id.pinText);
+        TextView title = dialog.findViewById(R.id.pinDialogTitle);
+        title.setText("Conectare "+name);
+
+        final TextView hint = dialog.findViewById(R.id.pinDialogHint);
+
+        final EditText pin = dialog.findViewById(R.id.pinText);
         Button sendPin = dialog.findViewById(R.id.sendPIN);
 
         sendPin.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+
+                if (!pinValid(pin.getText().toString())) {
+                    hint.setTextColor(Color.parseColor("red"));
+                    return;
+                }
                 MainActivity.getInstance().saveNewConnection(name, ip, null, 1);
 
                 // send paring pin to desktop
@@ -158,5 +202,17 @@ public class PairingActivity extends AppCompatActivity {
         });
 
         dialog.show();
+    }
+
+    private boolean pinValid(String pin) {
+        if (pin.length() != 4) {
+            return false;
+        }
+        try {
+            Integer.parseInt(pin);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return true;
     }
 }
