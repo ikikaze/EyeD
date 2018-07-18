@@ -21,6 +21,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Camera;
 import android.graphics.Rect;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.util.SparseArray;
@@ -45,7 +46,7 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
 
     //private GraphicOverlay<OcrGraphic> graphicOverlay;
     private TextView top, bottom;
-    private LinearLayout mrzArea;
+    private ConstraintLayout mrzArea;
     private int[] widthHeight;
     CameraSource camera;
 
@@ -55,7 +56,7 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
 
     private int repetitionsFound = 0;
 
-    public OcrDetectorProcessor(LinearLayout mrzArea, int[] widthHeight) {
+    public OcrDetectorProcessor(ConstraintLayout mrzArea, int[] widthHeight) {
         this.mrzArea = mrzArea;
         top = (TextView) mrzArea.getChildAt(0);
         bottom = (TextView) mrzArea.getChildAt(1);

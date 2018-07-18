@@ -88,7 +88,7 @@ public final class PassportOCRActivity extends AppCompatActivity {
 
     // A TextToSpeech engine for speaking a String value.
     private TextToSpeech tts;
-    private LinearLayout mrzArea;
+    private ConstraintLayout mrzArea;
     private int[] boxWidthHeight = new int[2];
 
     /**
