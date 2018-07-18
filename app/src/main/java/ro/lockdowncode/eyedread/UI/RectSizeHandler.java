@@ -16,8 +16,8 @@ public class RectSizeHandler {
         //lower as to not extend to edges of screen
 
 
-        int sWidth = (int)(getScreenWidth() * 0.6);
-        int sHeight = (int)(getScreenHeight()*0.6);
+        int sWidth = (int)(getScreenWidth() * 0.67);
+        int sHeight = (int)(getScreenHeight()*0.67);
 
         switch (type)
         { //sizes in mm;
