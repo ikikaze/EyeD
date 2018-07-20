@@ -25,7 +25,7 @@ import android.widget.Toast;
 import com.google.android.cameraview.CameraView;
 
 import ro.lockdowncode.eyedread.UI.RectSizeHandler;
-import ro.lockdowncode.eyedread.Utils.Type;
+import ro.lockdowncode.eyedread.Utils.Document;
 
 
 public class LicenseActivity extends AppCompatActivity {
@@ -59,7 +59,9 @@ public class LicenseActivity extends AppCompatActivity {
                     .show();
 
             mPictureHandler.savePicture(data);
-            mPictureHandler.sendPictureToPC(data);
+
+            Utils.Document docType = Utils.Document.valueOf(getIntent().getStringExtra("type"));
+            mPictureHandler.sendPictureToPC(data, docType.getType());
 
             /*Intent homepage = new Intent(LicenseActivity.this, MainActivity.class);
             startActivity(homepage);
@@ -138,7 +140,7 @@ public class LicenseActivity extends AppCompatActivity {
             mCameraView.addCallback(mCallback);
         }
         Intent intent = getIntent();
-        Type type = Type.valueOf(intent.getStringExtra("type"));
+        Document type = Document.valueOf(intent.getStringExtra("type"));
 
         View rectview = findViewById(R.id.Rect);
         ViewGroup.LayoutParams params = rectview.getLayoutParams();

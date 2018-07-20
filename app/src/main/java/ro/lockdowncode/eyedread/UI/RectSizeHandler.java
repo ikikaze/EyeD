@@ -1,7 +1,8 @@
 package ro.lockdowncode.eyedread.UI;
 
 import android.content.res.Resources;
-import ro.lockdowncode.eyedread.Utils.Type;
+
+import ro.lockdowncode.eyedread.Utils.Document;
 
 public class RectSizeHandler {
 
@@ -9,7 +10,7 @@ public class RectSizeHandler {
 
 
     //return array of 2 elements , width and height of rect based on type
-    public int[] getRectSizes(Type type)
+    public int[] getRectSizes(Document type)
     {
         int[] widthHeight = {0,0};
         double objHeight = 0 ,objWidth = 0;

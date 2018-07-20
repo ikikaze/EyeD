@@ -19,7 +19,7 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import ro.lockdowncode.eyedread.Utils.Type;
+import ro.lockdowncode.eyedread.Utils.Document;
 import ro.lockdowncode.eyedread.communication.CommunicationService;
 
 
@@ -27,10 +27,10 @@ public class PictureHandler {
 
     private static final String TAG = "PictureSaver";
     private Handler mBackgroundHandler;
-    private Type mType;
+    private Document mType;
     private Context mContext;
 
-    public PictureHandler(Context context, Type type) {
+    public PictureHandler(Context context, Document type) {
         mType = type;
         mContext = context;
 
@@ -93,12 +93,13 @@ public class PictureHandler {
     }
 
 
-    public void sendPictureToPC(final byte[] photoData) {
+    public void sendPictureToPC(final byte[] photoData, int docType) {
         Message msg = new Message();
         Bundle data = new Bundle();
         data.putString("destination", MainActivity.getInstance().getActiveDesktopConnection().getIp());
         data.putByteArray("photoData", photoData);
         data.putString("action", "imageTransfer");
+        data.putInt("docType", docType);
         msg.setData(data);
         CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
     }

@@ -16,7 +16,19 @@ import java.util.Enumeration;
 
 public class Utils {
 
-    public enum Type {BULETIN,PASAPORT,PERMIS}
+    public enum Document {
+        BULETIN(1),
+        PASAPORT(2),
+        PERMIS(3);
+
+        private int type;
+        Document(int type) {
+            this.type = type;
+        }
+        public int getType() {
+            return type;
+        }
+    }
 
     public static String getIpAddress() {
         try {

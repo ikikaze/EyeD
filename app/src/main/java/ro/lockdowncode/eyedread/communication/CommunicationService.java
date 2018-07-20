@@ -98,7 +98,8 @@ public class CommunicationService extends Service implements MessageListener {
 
                         if (action!=null && action.equalsIgnoreCase("imageTransfer")) {
                             byte[] imageData = data.getByteArray("photoData");
-                            getDesktopCommunicator().sendPhoto(imageData, dest);
+                            int docType = data.getInt("docType" );
+                            getDesktopCommunicator().sendPhoto(imageData, dest, docType);
                         } else {
                             getDesktopCommunicator().sendMessage(data.getString("message"), data.getString("destination"));
                         }
@@ -140,7 +141,7 @@ public class CommunicationService extends Service implements MessageListener {
                 intentHome.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intentHome.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intentHome.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                intentHome.putExtra("type", Utils.Type.BULETIN.name());
+                intentHome.putExtra("type", Utils.Document.BULETIN.name());
                 startActivity(intentHome);
                 break;
 

@@ -170,7 +170,7 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
                                     @Override
                                     public void onPictureTaken(byte[] bytes) {
                                         Log.d("sourcepicturestart", "onPictureTaken " + bytes.length);
-                                        PictureHandler pictureHandler = new PictureHandler(mrzArea.getContext(), Utils.Type.PASAPORT);
+                                        PictureHandler pictureHandler = new PictureHandler(mrzArea.getContext(), Utils.Document.PASAPORT);
                                         pictureHandler.savePicture(bytes);
                                         //pictureHandler.sendPictureToPC(bytes);
                                         Log.d("sourcepicturestop", "onPictureTaken " + bytes.length);

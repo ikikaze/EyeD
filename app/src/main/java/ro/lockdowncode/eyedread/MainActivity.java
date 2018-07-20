@@ -176,11 +176,11 @@ public class MainActivity extends AppCompatActivity {
         switch (id) {
             case R.id.btnID:
                 intent = new Intent(this, LicenseActivity.class);
-                intent.putExtra("type", Utils.Type.BULETIN.name());
+                intent.putExtra("type", Utils.Document.BULETIN.name());
                 break;
             case R.id.btnLicense:
                 intent = new Intent(this, LicenseActivity.class);
-                intent.putExtra("type", Utils.Type.PERMIS.name());
+                intent.putExtra("type", Utils.Document.PERMIS.name());
                 break;
             case R.id.btnPass:
                 intent = new Intent(this,PassportOCRActivity.class);

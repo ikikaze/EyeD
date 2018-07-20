@@ -65,14 +65,14 @@ public class DesktopCommunicator {
         new Thread(client).start();
     }
 
-    public void sendPhoto(final byte[] data, final String destinationAddress) {
+    public void sendPhoto(final byte[] data, final String destinationAddress, final int type) {
         Runnable client = new Runnable() {
             @Override
             public void run() {
                 ClientSocket clientSocket = null;
                 try {
                     clientSocket = new ClientSocket(destinationAddress, 33778);
-                    String resp = clientSocket.sendString("0008:"+ Build.SERIAL+":PrepareReceivePicture:1");
+                    String resp = clientSocket.sendString("0008:"+ Build.SERIAL+":PrepareReceivePicture:"+type);
                     if (resp.equalsIgnoreCase("0009:ReadyToReceivePicture")) {
                         long length = data.length;
                         clientSocket.sendString("0009:"+length);

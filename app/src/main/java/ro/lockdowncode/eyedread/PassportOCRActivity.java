@@ -113,7 +113,7 @@ public final class PassportOCRActivity extends AppCompatActivity {
         ViewGroup.LayoutParams params = rectview.getLayoutParams();
 
         RectSizeHandler sizeHandler = new RectSizeHandler();
-        int[] widthHeight = sizeHandler.getRectSizes(Utils.Type.PASAPORT);
+        int[] widthHeight = sizeHandler.getRectSizes(Utils.Document.PASAPORT);
         params.width = widthHeight[0];
         params.height = widthHeight[1];
         rectview.setLayoutParams(params);
