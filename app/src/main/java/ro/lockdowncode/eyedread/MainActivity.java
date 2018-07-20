@@ -3,6 +3,7 @@ package ro.lockdowncode.eyedread;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
@@ -11,6 +12,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 
@@ -120,11 +122,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void resetConnectionButtonText() {
         if (getConnStatus() == CONNECTION_STATUS.CONNECTED) {
-            btnConnect.setText("Connected to "+getActiveDesktopConnection().getName());
+            btnConnect.setText("Conectat la "+getActiveDesktopConnection().getName());
         } else if (getConnStatus() == CONNECTION_STATUS.WAITING) {
-            btnConnect.setText("Waiting for connection to "+getActiveDesktopConnection().getName());
+            btnConnect.setText("Se asteapta conexiune de la "+getActiveDesktopConnection().getName());
         } else {
-            btnConnect.setText("Connect to desktop");
+            btnConnect.setText("Conecteaza-te");
         }
     }
 
@@ -134,13 +136,11 @@ public class MainActivity extends AppCompatActivity {
         connDialog.setContentView(R.layout.connection_details_dialog);
         connDialog.setTitle("Title...");
 
-        String status = waiting ? "Connection waiting for ": "Connected to ";
+        String status = waiting ? "Se asteapta conexiune de la ": "Conectat la ";
         TextView name = connDialog.findViewById(R.id.connectionName);
         name.setText(status + getActiveDesktopConnection().getName());
         TextView ip = connDialog.findViewById(R.id.connectionIP);
         ip.setText(getActiveDesktopConnection().getIp());
-        //TextView mac = connDialog.findViewById(R.id.connectionMAC);
-        //mac.setText(getConnectionMAC());
 
         Button newConnectionButton = connDialog.findViewById(R.id.newConnectionBtn);
         newConnectionButton.setOnClickListener(new View.OnClickListener() {
@@ -218,21 +218,16 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                Button btn = findViewById(R.id.btnConnect);
+                Drawable background = getApplicationContext().getResources().getDrawable(R.drawable.button_bg);
                 if (getConnStatus() == CONNECTION_STATUS.CONNECTED) {
-                    String vis = (connectionVisibility) ? "ON":"OFF";
-                    String text = btnConnect.getText().toString();
-                    String[] msgChunks = text.split(":");
-                    String stat = msgChunks[0];
-                    String finalText;
-                    if (!stat.equals("ON") && !stat.equals("OFF")) {
-                        finalText = vis + ":"+stat;
-                    } else {
-                        finalText = vis + ":"+msgChunks[1];
+                    if (connectionVisibility) {
+                        background = getApplicationContext().getResources().getDrawable(R.drawable.button_bg_on);
                     }
-                    btnConnect.setText(finalText);
                 }
-            }});
-
+                btn.setBackground(background);
+            }
+        });
     }
 
     public void showStatus(String response) {
@@ -314,25 +309,18 @@ public class MainActivity extends AppCompatActivity {
     public void saveNewConnection(final String name, final String ip, final String id, final int status) {
         Realm realm = Realm.getDefaultInstance();
         try {
-            final RealmResults<DesktopConnection> r = realm.where(DesktopConnection.class)
+            final RealmResults<DesktopConnection> matchingConnections = realm.where(DesktopConnection.class)
                     .equalTo("id", id).or().isNull("id")
                     .findAll();
             realm.executeTransaction(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
-                    if (!r.isEmpty()) {
-                        DesktopConnection existingDesktopConnection = r.get(0);
-                        existingDesktopConnection.setIp(ip);
-                        existingDesktopConnection.setName(name);
-                        existingDesktopConnection.setStatus(status);
-                        existingDesktopConnection.setLastConnected(new Date());
-                    } else {
-                        DesktopConnection newDesktopConnection = realm.createObject(DesktopConnection.class, id);
-                        newDesktopConnection.setName(name);
-                        newDesktopConnection.setIp(ip);
-                        newDesktopConnection.setStatus(status);
-                        newDesktopConnection.setLastConnected(new Date());
-                    }
+                    matchingConnections.deleteAllFromRealm();
+                    DesktopConnection newConnection = realm.createObject(DesktopConnection.class, id);
+                    newConnection.setName(name);
+                    newConnection.setIp(ip);
+                    newConnection.setStatus(status);
+                    newConnection.setLastConnected(new Date());
                 }
             });
         } finally {
