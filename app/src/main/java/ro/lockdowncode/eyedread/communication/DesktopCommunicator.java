@@ -77,8 +77,8 @@ public class DesktopCommunicator {
                     String resp = clientSocket.sendString("0008:"+ Build.SERIAL+":PrepareReceivePicture:"+type);
                     if (resp.equalsIgnoreCase("0009:ReadyToReceivePicture")) {
                         long length = data.length;
-                        clientSocket.sendString("0009:"+length);
-                        clientSocket.sendByteArray(data);
+                        clientSocket.sendStringWithoutResponse("0009:"+length);
+                        clientSocket.sendByteArrayWithoutResponse(data);
                     } else if (resp.equalsIgnoreCase("0004:Busy")) {
                         messageListener.desktopBusy(destinationAddress);
                     }
