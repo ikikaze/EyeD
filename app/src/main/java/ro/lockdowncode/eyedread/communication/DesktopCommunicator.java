@@ -44,6 +44,8 @@ public class DesktopCommunicator {
         serverThread.interrupt();
     }
 
+    //public void ping()
+
     public void sendMessage(final String message, final String destinationAddress) {
         Runnable client = new Runnable() {
             @Override

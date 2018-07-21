@@ -3,17 +3,22 @@ package ro.lockdowncode.eyedread;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.StrictMode;
+import android.provider.MediaStore;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import java.util.Date;
@@ -24,6 +29,8 @@ import ro.lockdowncode.eyedread.communication.CommunicationService;
 import ro.lockdowncode.eyedread.pairing.PairingActivity;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static int RESULT_LOAD_IMG = 1;
 
     private static MainActivity instance;
 
@@ -38,8 +45,11 @@ public class MainActivity extends AppCompatActivity {
     private Button btnConnect;
 
     private Dialog connDialog;
+    private Dialog docTypeSelectionDialog;
     private AlertDialog wifiAlertDialog;
     private AlertDialog desktopBusy;
+
+    private Utils.Document searchDocType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +95,9 @@ public class MainActivity extends AppCompatActivity {
         if (connDialog != null) {
             connDialog.dismiss();
         }
+        if (docTypeSelectionDialog != null) {
+            docTypeSelectionDialog.dismiss();
+        }
         if (wifiAlertDialog != null) {
             wifiAlertDialog.dismiss();
         }
@@ -117,6 +130,44 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });*/
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        try {
+            // When an Image is picked
+            if (requestCode == RESULT_LOAD_IMG && resultCode == RESULT_OK
+                    && null != data) {
+                // Get the Image from data
+
+                Uri selectedImage = data.getData();
+                String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+                // Get the cursor
+                Cursor cursor = getContentResolver().query(selectedImage,
+                        filePathColumn, null, null, null);
+                // Move to first row
+                cursor.moveToFirst();
+
+                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                String imgDecodableString = cursor.getString(columnIndex);
+                cursor.close();
+
+                Intent intent = new Intent(this, SendDocument.class);
+                intent.putExtra("imgString", imgDecodableString);
+
+                startActivity(intent);
+
+            } else {
+                Toast.makeText(this, "You haven't picked Image",
+                        Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
+                    .show();
+        }
 
     }
 
@@ -169,6 +220,26 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+    public void searchDocSelected(View view) {
+        int id = view.getId();
+        switch (id) {
+            case R.id.btnID:
+                searchDocType = Utils.Document.BULETIN;
+                break;
+            case R.id.btnLicense:
+                searchDocType = Utils.Document.PERMIS;
+                break;
+            case R.id.btnPass:
+                searchDocType = Utils.Document.PASAPORT;
+                break;
+        }
+        Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(galleryIntent, RESULT_LOAD_IMG);
+    }
+
+
     public void btnsClicked(View view) {
         int id = view.getId();
 
@@ -186,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
                 intent = new Intent(this,PassportOCRActivity.class);
                 break;
             case R.id.btnSearch:
+                docTypeSelectionPopup();
                 break;
             case R.id.btnConnect:
                 handleConnectBtnClik();
@@ -193,6 +265,16 @@ public class MainActivity extends AppCompatActivity {
         }
         if (intent != null)
             startActivity(intent);
+    }
+
+    private void docTypeSelectionPopup() {
+        // custom dialog
+        docTypeSelectionDialog = new Dialog(MainActivity.getInstance());
+        docTypeSelectionDialog.setContentView(R.layout.doc_type_selection_dialog);
+        docTypeSelectionDialog.setTitle("Title...");
+
+
+        docTypeSelectionDialog.show();
     }
 
     public void pairingSuccessful(String desktopID) {
