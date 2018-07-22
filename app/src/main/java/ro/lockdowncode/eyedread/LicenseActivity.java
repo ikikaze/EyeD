@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.google.android.cameraview.CameraView;
 
+import ro.lockdowncode.eyedread.UI.FlashButton;
 import ro.lockdowncode.eyedread.UI.RectSizeHandler;
 import ro.lockdowncode.eyedread.Utils.Document;
 
@@ -33,6 +34,7 @@ public class LicenseActivity extends AppCompatActivity {
 
     private static final String TAG = "EDR-L";
     private CameraView mCameraView;
+    private FlashButton btnFlash;
     private static final int REQUEST_CAMERA_PERMISSION = 1;
     private static final String FRAGMENT_DIALOG = "dialog";
     private PictureHandler mPictureHandler;
@@ -62,37 +64,6 @@ public class LicenseActivity extends AppCompatActivity {
 
             Utils.Document docType = Utils.Document.valueOf(getIntent().getStringExtra("type"));
             mPictureHandler.sendPictureToPC(data, docType.getType());
-
-            /*Intent homepage = new Intent(LicenseActivity.this, MainActivity.class);
-            startActivity(homepage);
-            /*getBackgroundHandler().post(new Runnable() {
-                @Override
-                public void run() {
-                    File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                            "picture.jpg");
-                    OutputStream os = null;
-                    try {
-
-                        os = new FileOutputStream(file);
-                        os.write(data);
-                        os.close();
-                    } catch (IOException e) {
-                        Log.w(TAG, "Cannot write to " + file, e);
-                    } finally {
-                        if (os != null) {
-                            try {
-                                os.close();
-                                Intent intent =
-                                        new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                                intent.setData(Uri.fromFile(file));
-                                sendBroadcast(intent);
-                            } catch (IOException e) {
-                                // Ignore
-                            }
-                        }
-                    }
-                }
-            });*/
         }
 
     };
@@ -125,11 +96,8 @@ public class LicenseActivity extends AppCompatActivity {
 
 
         View decorView = getWindow().getDecorView();
-// Hide the status bar.
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
-// Remember that you should never show the action bar if the
-// status bar is hidden, so hide that too if necessary.
         ActionBar actionBar = getActionBar();
         if(actionBar != null)
             actionBar.hide();
@@ -157,6 +125,9 @@ public class LicenseActivity extends AppCompatActivity {
         }
 
         mPictureHandler = new PictureHandler(this, type);
+
+        btnFlash = findViewById(R.id.btnFlash);
+        btnFlash.setCameraView(mCameraView);
     }
 
 

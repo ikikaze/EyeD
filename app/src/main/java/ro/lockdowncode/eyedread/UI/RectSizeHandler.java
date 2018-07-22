@@ -37,12 +37,12 @@ public class RectSizeHandler {
 
 
 
-    private int getScreenWidth()
+    public static int getScreenWidth()
     {
         return Resources.getSystem().getDisplayMetrics().widthPixels;
     }
 
-    private int getScreenHeight()
+    public static int getScreenHeight()
     {
         return Resources.getSystem().getDisplayMetrics().heightPixels;
     }
