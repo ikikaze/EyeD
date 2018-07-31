@@ -163,6 +163,13 @@ public class PairingActivity extends AppCompatActivity {
         }
     }
 
+    public void selectSavedDesktopConnection(String name, String ip, String id) {
+        MainActivity.getInstance().saveNewConnection(name, ip, id, 2);
+        Intent homepage = new Intent(this, MainActivity.class);
+        homepage.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+        startActivity(homepage);
+    }
+
     public void selectNewDesktopConnection(final String name, final String ip) {
         // custom dialog
         final Dialog dialog = new Dialog(PairingActivity.getInstance());
@@ -195,7 +202,7 @@ public class PairingActivity extends AppCompatActivity {
 
                 dialog.dismiss();
 
-                Intent homepage = new Intent(MainActivity.getInstance(), MainActivity.class);
+                Intent homepage = new Intent(PairingActivity.getInstance(), MainActivity.class);
                 homepage.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(homepage);
             }

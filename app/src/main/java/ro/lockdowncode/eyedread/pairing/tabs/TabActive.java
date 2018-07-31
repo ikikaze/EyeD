@@ -39,7 +39,7 @@ public class TabActive extends Fragment {
         View v =  inflater.inflate(R.layout.fragment_tab_connections, container, false);
         RecyclerView recyclerView = (RecyclerView)v.findViewById(R.id.connectionsView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        adapter = new DesktopConnectionRowAdapter(myList);
+        adapter = new DesktopConnectionRowAdapter(myList, false);
         recyclerView.setAdapter(adapter);
 
         return v;

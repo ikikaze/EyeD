@@ -54,9 +54,8 @@ public class DesktopCommunicator {
                 try {
                     clientSocket = new ClientSocket(destinationAddress, 33778);
                     clientSocket.sendString(message);
-                } catch (ConnectException e) {
-                    messageListener.hostUnavailable(destinationAddress);
                 } catch (IOException | InterruptedException e) {
+                    messageListener.hostUnavailable(destinationAddress);
                 } finally {
                     if (clientSocket != null) {
                         clientSocket.close();
@@ -82,10 +81,8 @@ public class DesktopCommunicator {
                     } else if (resp.equalsIgnoreCase("0004:Busy")) {
                         messageListener.desktopBusy(destinationAddress);
                     }
-                } catch (ConnectException e) {
-                    messageListener.hostUnavailable(destinationAddress);
                 } catch (IOException | InterruptedException e) {
-                    e.printStackTrace(System.out);
+                    messageListener.hostUnavailable(destinationAddress);
                 } finally {
                     if (clientSocket != null) {
                         clientSocket.close();

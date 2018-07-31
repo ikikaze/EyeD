@@ -48,6 +48,7 @@
         <activity
             android:name=".LicenseActivity"
             android:configChanges="orientation"
+            android:noHistory="true"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="landscape" />
 
@@ -82,8 +83,10 @@
                 android:resource="@xml/nfc_tech_filter" />
         </activity>
         <activity android:name=".NFCResultActivity" />
-        <activity android:name=".SendDocument">
-        </activity>
+        <activity android:name=".SendDocument" />
+        <activity android:name=".EditDocInfo"
+            android:windowSoftInputMode="adjustPan"/>
+
     </application>
 
 </manifest>

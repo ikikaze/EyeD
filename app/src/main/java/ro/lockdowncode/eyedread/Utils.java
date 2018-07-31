@@ -28,6 +28,15 @@ public class Utils {
         public int getType() {
             return type;
         }
+
+        public static Document getById(String id) {
+            switch (id) {
+                case "1": return Document.BULETIN;
+                case "2": return Document.PASAPORT;
+                case "3": return Document.PERMIS;
+            }
+            return null;
+        }
     }
 
     public static String getIpAddress() {

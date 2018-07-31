@@ -36,8 +36,6 @@ public class LicenseActivity extends AppCompatActivity {
     private CameraView mCameraView;
     private FlashButton btnFlash;
     private static final int REQUEST_CAMERA_PERMISSION = 1;
-    private static final String FRAGMENT_DIALOG = "dialog";
-    private PictureHandler mPictureHandler;
     private Window wind;
 
 
@@ -60,10 +58,14 @@ public class LicenseActivity extends AppCompatActivity {
             Toast.makeText(cameraView.getContext(), R.string.picture_taken, Toast.LENGTH_SHORT)
                     .show();
 
-            mPictureHandler.savePicture(data);
+            EyeDRead.getInstance().setCapturedPhotoData(data);
+            mCameraView.stop();
 
-            Utils.Document docType = Utils.Document.valueOf(getIntent().getStringExtra("type"));
-            mPictureHandler.sendPictureToPC(data, docType.getType());
+            Intent sendDocument = new Intent(LicenseActivity.this, SendDocument.class);
+            sendDocument.putExtra("source", "camera");
+            sendDocument.putExtra("type", getIntent().getStringExtra("type"));
+            sendDocument.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(sendDocument);
         }
 
     };
@@ -124,8 +126,6 @@ public class LicenseActivity extends AppCompatActivity {
             fab.setOnClickListener(mOnClickListener);
         }
 
-        mPictureHandler = new PictureHandler(this, type);
-
         btnFlash = findViewById(R.id.btnFlash);
         btnFlash.setCameraView(mCameraView);
     }
@@ -148,8 +148,6 @@ public class LicenseActivity extends AppCompatActivity {
         mCameraView.stop();
         super.onPause();
     }
-
-
 
 }
 

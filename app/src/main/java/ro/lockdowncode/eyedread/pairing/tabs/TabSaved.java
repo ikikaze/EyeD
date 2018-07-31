@@ -52,7 +52,7 @@ public class TabSaved extends Fragment {
         View v =  inflater.inflate(R.layout.fragment_tab_connections, container, false);
         RecyclerView recyclerView = (RecyclerView)v.findViewById(R.id.connectionsView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        adapter = new DesktopConnectionRowAdapter(saved);
+        adapter = new DesktopConnectionRowAdapter(saved, true);
         recyclerView.setAdapter(adapter);
 
         return v;

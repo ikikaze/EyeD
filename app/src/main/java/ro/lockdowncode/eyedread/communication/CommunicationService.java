@@ -11,8 +11,10 @@ import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import okhttp3.internal.Util;
 import ro.lockdowncode.eyedread.LicenseActivity;
 import ro.lockdowncode.eyedread.MainActivity;
+import ro.lockdowncode.eyedread.SendDocument;
 import ro.lockdowncode.eyedread.pairing.PairingActivity;
 import ro.lockdowncode.eyedread.Utils;
 
@@ -119,6 +121,7 @@ public class CommunicationService extends Service implements MessageListener {
             case "0001":
                 String desktopName = msgChunks[1];
                 String desktopMAC = "";
+                String desktopIPFormMsg = msgChunks[2];
                 PairingActivity.getInstance().addDesktopClient(desktopName, desktopIP, desktopMAC);
                 break;
             case "0003":
@@ -127,24 +130,37 @@ public class CommunicationService extends Service implements MessageListener {
                 // send mac to desktop
                 getDesktopCommunicator().sendMessage("0005:"+ Build.SERIAL+":"+android.os.Build.MODEL, desktopIP);
                 break;
-            case "0004": // DESKTOP BUSY
-                desktopBusy(desktopIP);
+            case "0004": // DESKTOP ERROR
+                if (msgChunks[1].equalsIgnoreCase("busy")) {
+                    desktopBusy(desktopIP);
+                }
                 break;
             case "0007":
                 MainActivity.getInstance().updateDsktopIP(desktopIP);
                 break;
             case "0009":
-                System.out.println(msgChunks[1]);
+                if (msgChunks[1].equals("TransferComplete")) {
+                    SendDocument.getInstance().updateStatus("Se proceseaza poza", false);
+                } else if (msgChunks[1].equals("TransferIncomplete")){
+                    SendDocument.getInstance().updateStatus(msgChunks[1], true);
+                } else {
+                    SendDocument.getInstance().updateStatus(msgChunks[1], false);
+                }
                 break;
             case "0011": // START CAMERA FROM DESKTOP 0011:desktopId:StartCamera:tipAct(1,2,3)
-                Intent intentHome = new Intent(getApplicationContext(), LicenseActivity.class);
-                intentHome.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                intentHome.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intentHome.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                intentHome.putExtra("type", Utils.Document.BULETIN.name());
-                startActivity(intentHome);
+                String desktopID = msgChunks[1];
+                if (MainActivity.getInstance().getActiveDesktopConnection()!=null && MainActivity.getInstance().getActiveDesktopConnection().getId().equals(desktopID)) {
+                    Utils.Document docType = Utils.Document.getById(msgChunks[3]);
+                    if (docType != null) {
+                        Intent intentHome = new Intent(getApplicationContext(), LicenseActivity.class);
+                        intentHome.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intentHome.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intentHome.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                        intentHome.putExtra("type", docType.name());
+                        startActivity(intentHome);
+                    }
+                }
                 break;
-
             case "0012":
                 desktopMAC = msgChunks[1];
                 String cmd = msgChunks[2];
@@ -152,6 +168,19 @@ public class CommunicationService extends Service implements MessageListener {
                     MainActivity.getInstance().setConnectionVisibility(true);
                 } else if (cmd.equalsIgnoreCase("ping") && desktopMAC.equals(MainActivity.getInstance().getActiveDesktopConnection().getId())) {
                     getDesktopCommunicator().sendMessage("0012:" + Build.SERIAL + ":Ping", desktopIP);
+                }
+                break;
+
+            case "0013":
+                if (msgChunks[1].equalsIgnoreCase("invalid")) {
+                    SendDocument.getInstance().updateStatus(msgChunks[2], true);
+                }
+                break;
+            case "0014":
+                if (msgChunks[1].equalsIgnoreCase("valid")) {
+                    String jsonContent = message.substring(msgChunks[0].length()+msgChunks[1].length()+2);
+                    SendDocument.getInstance().validDataFromDesktop(jsonContent);
+                    System.out.println(jsonContent);
                 }
                 break;
         }
@@ -170,6 +199,9 @@ public class CommunicationService extends Service implements MessageListener {
     @Override
     public void desktopBusy(String destinationAddress) {
         MainActivity.getInstance().desktopBusy();
+        if (SendDocument.getInstance()!=null) {
+            SendDocument.getInstance().updateStatus("Desktop ocupat", true);
+        }
     }
 
 }

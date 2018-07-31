@@ -157,7 +157,9 @@ public class MainActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(this, SendDocument.class);
                 intent.putExtra("imgString", imgDecodableString);
-
+                intent.putExtra("type", searchDocType.name());
+                intent.putExtra("source", "gallery");
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
 
             } else {
@@ -179,6 +181,8 @@ public class MainActivity extends AppCompatActivity {
         } else {
             btnConnect.setText("Conecteaza-te");
         }
+        setConnectionVisibility(false);
+
     }
 
     private void handleConnectionStatusClick_Connected(boolean waiting) {
@@ -285,6 +289,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
 
                 resetConnectionButtonText();
+                setConnectionVisibility(true);
 
             }
         });

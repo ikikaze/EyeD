@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:focusableInTouchMode="true"
+    android:focusableInTouchMode="false"
+    android:focusable="false"
     tools:layout_editor_absoluteY="25dp">
 
     <TextView
@@ -50,4 +51,15 @@
         android:textColor="@color/mdtp_date_picker_text_disabled"
         app:layout_constraintBottom_toTopOf="@+id/liConnDate"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/liConnID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text=""
+        android:visibility="invisible"
+        app:layout_constraintStart_toEndOf="@+id/liConnName"
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>
