@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,6 +21,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+
+import ro.lockdowncode.eyedread.communication.CommunicationService;
 
 public class SendDocument extends AppCompatActivity {
 
@@ -78,14 +81,26 @@ public class SendDocument extends AppCompatActivity {
         updateStatus("Se trimite poza", false);
     }
 
+    private void cancelCurrentServerProcess() {
+        //send templates
+        Message msg = new Message();
+        Bundle data = new Bundle();
+        data.putString("destination", MainActivity.getInstance().getActiveDesktopConnection().getIp());
+        data.putString("message", "0022:CancelCurrentProcess");
+        msg.setData(data);
+        CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
+    }
+
     public void btnClicked(View view) {
         int id = view.getId();
         switch (id) {
             case R.id.btnBack:
+                cancelCurrentServerProcess();
                 Intent homeIntent = new Intent(this, MainActivity.class);
                 startActivity(homeIntent);
                 break;
             case R.id.btnAnotherPhoto:
+                cancelCurrentServerProcess();
                 if (source.equals("camera")) {
                     Intent intent = new Intent(this, LicenseActivity.class);
                     intent.putExtra("type", type.name());
@@ -167,6 +182,7 @@ public class SendDocument extends AppCompatActivity {
     public void validDataFromDesktop(String dataJson) {
         Intent homeIntent = new Intent(this, EditDocInfo.class);
         homeIntent.putExtra("dataJson", dataJson);
+        homeIntent.putExtra("type", type.name());
         startActivity(homeIntent);
         this.finish();
     }

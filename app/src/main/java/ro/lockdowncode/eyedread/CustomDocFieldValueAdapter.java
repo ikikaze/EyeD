@@ -15,44 +15,44 @@ import java.util.List;
  * Created by Adi Neag on 23.07.2018.
  */
 
-public class CustomDocFieldValueAdapter extends ArrayAdapter<FieldValueDataModel> implements View.OnClickListener{
+public class CustomDocFieldValueAdapter extends ArrayAdapter<FieldValueDataModel>{
 
-    private List<FieldValueDataModel> dataSet;
-    Context mContext;
-
-    // View lookup cache
-    private static class ViewHolder {
-        TextView txtName;
-        EditText txtValue;
-    }
+    public ArrayList<FieldValueDataModel> mItems = new ArrayList<>();
 
     public CustomDocFieldValueAdapter(List<FieldValueDataModel> data, Context context) {
         super(context, R.layout.doc_field_item, data);
-        this.dataSet = data;
-        this.mContext=context;
     }
 
-    @Override
-    public void onClick(View v) {
-
+    public long getItemId(int position) {
+        return position;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        FieldValueDataModel dataModel = getItem(position);
-        ViewHolder viewHolder;
-        if (convertView == null) {
-            viewHolder = new ViewHolder();
-            LayoutInflater inflater = LayoutInflater.from(getContext());
-            convertView = inflater.inflate(R.layout.doc_field_item, parent, false);
-            viewHolder.txtName = convertView.findViewById(R.id.fieldName);
-            viewHolder.txtValue = convertView.findViewById(R.id.fieldValue);
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
+        View v = convertView;
+
+        if (v == null) {
+            LayoutInflater vi;
+            vi = LayoutInflater.from(getContext());
+            v = vi.inflate(R.layout.doc_field_item, null, false);
         }
-        viewHolder.txtName.setText(dataModel.getName());
-        viewHolder.txtValue.setText(dataModel.getValue());
-        return convertView;
+
+        final FieldValueDataModel p = getItem(position);
+
+        if (p != null) {
+            TextView tt1 = (TextView) v.findViewById(R.id.fieldName);
+            EditText tt2 = (EditText) v.findViewById(R.id.fieldValue);
+
+            if (tt1 != null) {
+                tt1.setText(p.getName());
+            }
+
+            if (tt2 != null) {
+                tt2.setText(p.getValue());
+            }
+
+        }
+
+        return v;
     }
 }

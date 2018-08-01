@@ -15,6 +15,7 @@ import okhttp3.internal.Util;
 import ro.lockdowncode.eyedread.LicenseActivity;
 import ro.lockdowncode.eyedread.MainActivity;
 import ro.lockdowncode.eyedread.SendDocument;
+import ro.lockdowncode.eyedread.TemplatesList;
 import ro.lockdowncode.eyedread.pairing.PairingActivity;
 import ro.lockdowncode.eyedread.Utils;
 
@@ -122,7 +123,7 @@ public class CommunicationService extends Service implements MessageListener {
                 String desktopName = msgChunks[1];
                 String desktopMAC = "";
                 String desktopIPFormMsg = msgChunks[2];
-                PairingActivity.getInstance().addDesktopClient(desktopName, desktopIP, desktopMAC);
+                PairingActivity.getInstance().addDesktopClient(desktopName, desktopIPFormMsg, desktopMAC);
                 break;
             case "0003":
                 desktopMAC = msgChunks[1];
@@ -183,6 +184,25 @@ public class CommunicationService extends Service implements MessageListener {
                     System.out.println(jsonContent);
                 }
                 break;
+            case "0016":
+                if (msgChunks[1].equalsIgnoreCase("TemplatesList")) {
+                    String jsonContent = message.substring(msgChunks[0].length()+msgChunks[1].length()+2);
+                    TemplatesList.getInstance().validTemplatesReceived(jsonContent);
+                }
+                break;
+            case "0017":
+                if (msgChunks[1].equalsIgnoreCase("TemplatesListInvalid")) {
+                    System.out.println(msgChunks[2]);
+                }
+                break;
+            case "0020":
+                if (msgChunks[1].equalsIgnoreCase("DataOK")) {
+                    TemplatesList.getInstance().readyToSendTemplates();
+                }
+                break;
+            case "0021":
+                TemplatesList.getInstance().requestStatus(msgChunks[1]);
+                break;
         }
     }
 
@@ -200,7 +220,7 @@ public class CommunicationService extends Service implements MessageListener {
     public void desktopBusy(String destinationAddress) {
         MainActivity.getInstance().desktopBusy();
         if (SendDocument.getInstance()!=null) {
-            SendDocument.getInstance().updateStatus("Desktop ocupat", true);
+            SendDocument.getInstance().updateStatus("Pe calculator exista deja un document de identitate in lucru. Inchideti activitatea curenta pentru a putea prelua noi imagini de la Telefonul mobil.", true);
         }
     }
 

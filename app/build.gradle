@@ -40,6 +40,8 @@ dependencies {
     implementation 'com.github.mhshams:jnbis:1.1.0'
     implementation 'com.google.android.gms:play-services-vision:15.0.1'
 
+    implementation 'com.github.bmelnychuk:atv:1.2.+'
+
 }
 
 realm {

@@ -261,7 +261,9 @@ public class MainActivity extends AppCompatActivity {
                 intent = new Intent(this,PassportOCRActivity.class);
                 break;
             case R.id.btnSearch:
-                docTypeSelectionPopup();
+                //docTypeSelectionPopup();
+                Intent i = new Intent(this, TemplatesList.class);
+                startActivity(i);
                 break;
             case R.id.btnConnect:
                 handleConnectBtnClik();

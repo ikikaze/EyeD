@@ -84,9 +84,11 @@
         </activity>
         <activity android:name=".NFCResultActivity" />
         <activity android:name=".SendDocument" />
-        <activity android:name=".EditDocInfo"
-            android:windowSoftInputMode="adjustPan"/>
-
+        <activity
+            android:name=".EditDocInfo"
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".TemplatesList">
+        </activity>
     </application>
 
 </manifest>
