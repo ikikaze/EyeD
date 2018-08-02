@@ -51,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
 
     private Utils.Document searchDocType;
 
+    private boolean wifiOn = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,6 +91,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+
+        if (wifiAlertDialog != null) {
+            wifiAlertDialog.dismiss();
+        }
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         resetConnectionButtonText();
@@ -113,24 +124,6 @@ public class MainActivity extends AppCompatActivity {
             msg.setData(data);
             CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        /*runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-
-                if (wifiAlertDialog != null) {
-                    wifiAlertDialog.dismiss();
-                }
-
-            }
-        });*/
-
     }
 
     @Override
@@ -317,16 +310,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void showStatus(String response) {
-
-        new AlertDialog.Builder(MainActivity.getInstance())
-                .setTitle("Photo Transfer Status")
-                .setMessage(response)
-                .setIcon(android.R.drawable.ic_dialog_alert).show();
-    }
-
-
-    public void notifyWifiOff() {
+    public void wifiStatusChange() {
         if(!Utils.checkWifiOnAndConnected(this)) {
             runOnUiThread(new Runnable() {
 
@@ -334,15 +318,32 @@ public class MainActivity extends AppCompatActivity {
                 public void run() {
                     if (wifiAlertDialog == null) {
                         wifiAlertDialog = new AlertDialog.Builder(MainActivity.getInstance())
-                                .setTitle("Wifi is off")
-                                .setMessage("Please turn on wifi to be able to communicate with desktop app")
+                                .setTitle("Wifi este oprit")
+                                .setMessage("Conecteaza-te la wifi pentru a putea comunica cu calculatorul")
                                 .setIcon(android.R.drawable.ic_dialog_alert).create();
                     }
                     if (!wifiAlertDialog.isShowing()) {
-                        wifiAlertDialog.show();
+                        if (!isFinishing()) {
+                            wifiAlertDialog.show();
+                        }
                     }
                 }
             });
+            wifiOn = false;
+        } else {
+            if (!wifiOn) {
+                if (getConnStatus() == CONNECTION_STATUS.CONNECTED && CommunicationService.uiMessageReceiverHandler != null) {
+                    // ping desktop
+                    Message msg = new Message();
+                    Bundle data = new Bundle();
+                    data.putString("destination", getActiveDesktopConnection().getIp());
+                    data.putString("message", "0012:" + Build.SERIAL + ":Ping");
+                    msg.setData(data);
+                    CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
+                }
+            }
+            wifiOn = true;
+
         }
     }
 
@@ -353,12 +354,14 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 if (desktopBusy == null) {
                     desktopBusy = new AlertDialog.Builder(MainActivity.getInstance())
-                            .setTitle("Desktop is busy")
-                            .setMessage("Please try again later")
+                            .setTitle("Calculatorul este ocupat")
+                            .setMessage("Te rugam incearca mai tarziu")
                             .setIcon(android.R.drawable.ic_dialog_alert).create();
                 }
                 if (!desktopBusy.isShowing()) {
-                    desktopBusy.show();
+                    if (!isFinishing()) {
+                        desktopBusy.show();
+                    }
                 }
             }
         });

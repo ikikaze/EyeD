@@ -180,12 +180,14 @@ public class SendDocument extends AppCompatActivity {
 
     }
 
-    private void saveCaptureToGallery() {
+    private boolean saveCaptureToGallery() {
         // save picture to gallery
         if (source.equals("camera") && mPictureHandler != null) {
             byte[] picData = EyeDRead.getInstance().getCapturedPhotoData();
             mPictureHandler.savePicture(picData);
+            return true;
         }
+        return false;
     }
 
     public void validDataFromDesktop(String dataJson) {
@@ -201,5 +203,13 @@ public class SendDocument extends AppCompatActivity {
     public void hostUnavailable() {
         saveCaptureToGallery();
         updateStatus("Calculatorul cu care sunteti conectat nu poate fi gasit. Verificati ca acesta cat si aplicatia EyeD-Read sunt pornite", true);
+    }
+
+    public void wifiOff() {
+        if (saveCaptureToGallery()) {
+            updateStatus("Wifi este oprit. Poza a fost salvata in galerie", true);
+        } else {
+            updateStatus("Wifi este oprit", true);
+        }
     }
 }

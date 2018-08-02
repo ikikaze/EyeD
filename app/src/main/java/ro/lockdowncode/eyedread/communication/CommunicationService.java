@@ -47,7 +47,7 @@ public class CommunicationService extends Service implements MessageListener {
             desktopCommunicator = null;
         }
         if (MainActivity.getInstance() != null) {
-            MainActivity.getInstance().notifyWifiOff();
+            MainActivity.getInstance().wifiStatusChange();
         }
         return desktopCommunicator;
     }
@@ -105,6 +105,10 @@ public class CommunicationService extends Service implements MessageListener {
                             getDesktopCommunicator().sendPhoto(imageData, dest, docType);
                         } else {
                             getDesktopCommunicator().sendMessage(data.getString("message"), data.getString("destination"));
+                        }
+                    } else {
+                        if (SendDocument.getInstance() != null) {
+                            SendDocument.getInstance().wifiOff();
                         }
                     }
                 }
@@ -209,12 +213,14 @@ public class CommunicationService extends Service implements MessageListener {
     @Override
     public void hostUnavailable(String hostIP) {
         Log.d(CommunicationService.class.getName(), "Host unavailable");
-        if (MainActivity.getInstance().getConnStatus() == MainActivity.CONNECTION_STATUS.CONNECTED) {
+        if (MainActivity.getInstance().getConnStatus() == MainActivity.CONNECTION_STATUS.CONNECTED && Utils.checkWifiOnAndConnected(MainActivity.getInstance().getApplicationContext())) {
             MainActivity.getInstance().setConnectionVisibility(false);
             String multicastMessage = "0006:09fe5d9775f04a4b8b9b081a8e732bae:"+Build.SERIAL;
             new MultiCastSender(MainActivity.getInstance(), "255.255.255.255", 33558, multicastMessage).start();
 
-            SendDocument.getInstance().hostUnavailable();
+            if (SendDocument.getInstance() != null) {
+                SendDocument.getInstance().hostUnavailable();
+            }
         }
     }
 
