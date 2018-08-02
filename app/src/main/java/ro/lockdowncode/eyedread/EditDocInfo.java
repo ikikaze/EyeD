@@ -55,13 +55,9 @@ public class EditDocInfo extends AppCompatActivity {
 
     private String getFieldsValuesJson() {
         JSONObject json = new JSONObject();
-        ListView listView = findViewById(R.id.listView);
-        for(int i=0; i<listView.getAdapter().getCount(); i++) {
-            View v = listView.getChildAt(i);
-            TextView name = v.findViewById(R.id.fieldName);
-            EditText value = v.findViewById(R.id.fieldValue);
+        for(FieldValueDataModel item: adapter.getItems()) {
             try {
-                json.put(name.getText().toString(), value.getText().toString());
+                json.put(item.getName(), item.getValue());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -73,7 +69,7 @@ public class EditDocInfo extends AppCompatActivity {
         int id = view.getId();
         switch (id) {
             case R.id.btnBack:
-                cancelCurrentServerProcess();
+                MainActivity.getInstance().cancelCurrentServerProcess();
                 Intent homeIntent = new Intent(this, MainActivity.class);
                 startActivity(homeIntent);
                 break;
@@ -84,15 +80,5 @@ public class EditDocInfo extends AppCompatActivity {
                 startActivity(intent);
                 break;
         }
-    }
-
-    private void cancelCurrentServerProcess() {
-        //send templates
-        Message msg = new Message();
-        Bundle data = new Bundle();
-        data.putString("destination", MainActivity.getInstance().getActiveDesktopConnection().getIp());
-        data.putString("message", "0022:CancelCurrentProcess");
-        msg.setData(data);
-        CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
     }
 }

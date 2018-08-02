@@ -59,14 +59,12 @@ public class SendDocument extends AppCompatActivity {
             case PASAPORT: title.setText("Scanare Pasaport");break;
             case PERMIS: title.setText("Scanare Permis");break;
         }
-
+        byte[] picData = null;
         if (source.equals("camera")) {
-            byte[] picData = EyeDRead.getInstance().getCapturedPhotoData();
+            picData = EyeDRead.getInstance().getCapturedPhotoData();
             Bitmap bmp = BitmapFactory.decodeByteArray(picData, 0, picData.length);
             ImageView image = findViewById(R.id.documentView);
             image.setImageBitmap(Bitmap.createBitmap(bmp));
-
-            mPictureHandler.sendPictureToPC(picData, type.getType());
         } else if (source.equals("gallery")) {
             ImageView imgView = findViewById(R.id.documentView);
             Bitmap bitmap = BitmapFactory
@@ -74,37 +72,40 @@ public class SendDocument extends AppCompatActivity {
             imgView.setImageBitmap(bitmap);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-            byte[] imageInByte = baos.toByteArray();
-
-            mPictureHandler.sendPictureToPC(imageInByte, type.getType());
+            picData = baos.toByteArray();
         }
-        updateStatus("Se trimite poza", false);
+
+        // phone not paired with any desktop
+        if (MainActivity.getInstance().getActiveDesktopConnection() == null) {
+            if (source.equals("camera")) {
+                saveCaptureToGallery();
+                updateStatus("Nu sunteti conectat cu niciun calculator. Poza a fost salvata in memoria telefonului.", true);
+            } else {
+                updateStatus("Nu sunteti conectat cu niciun calculator.", true);
+            }
+        } else {
+            mPictureHandler.sendPictureToPC(picData, type.getType());
+            updateStatus("Se trimite poza", false);
+        }
     }
 
-    private void cancelCurrentServerProcess() {
-        //send templates
-        Message msg = new Message();
-        Bundle data = new Bundle();
-        data.putString("destination", MainActivity.getInstance().getActiveDesktopConnection().getIp());
-        data.putString("message", "0022:CancelCurrentProcess");
-        msg.setData(data);
-        CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
-    }
+
 
     public void btnClicked(View view) {
         int id = view.getId();
         switch (id) {
             case R.id.btnBack:
-                cancelCurrentServerProcess();
+                MainActivity.getInstance().cancelCurrentServerProcess();
                 Intent homeIntent = new Intent(this, MainActivity.class);
                 startActivity(homeIntent);
                 break;
             case R.id.btnAnotherPhoto:
-                cancelCurrentServerProcess();
+                MainActivity.getInstance().cancelCurrentServerProcess();
                 if (source.equals("camera")) {
                     Intent intent = new Intent(this, LicenseActivity.class);
                     intent.putExtra("type", type.name());
                     startActivity(intent);
+                    this.finish();
                 } else {
                     Intent galleryIntent = new Intent(Intent.ACTION_PICK,
                             android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -179,11 +180,26 @@ public class SendDocument extends AppCompatActivity {
 
     }
 
+    private void saveCaptureToGallery() {
+        // save picture to gallery
+        if (source.equals("camera") && mPictureHandler != null) {
+            byte[] picData = EyeDRead.getInstance().getCapturedPhotoData();
+            mPictureHandler.savePicture(picData);
+        }
+    }
+
     public void validDataFromDesktop(String dataJson) {
+        saveCaptureToGallery();
+        // start edit info activity
         Intent homeIntent = new Intent(this, EditDocInfo.class);
         homeIntent.putExtra("dataJson", dataJson);
         homeIntent.putExtra("type", type.name());
         startActivity(homeIntent);
         this.finish();
+    }
+
+    public void hostUnavailable() {
+        saveCaptureToGallery();
+        updateStatus("Calculatorul cu care sunteti conectat nu poate fi gasit. Verificati ca acesta cat si aplicatia EyeD-Read sunt pornite", true);
     }
 }

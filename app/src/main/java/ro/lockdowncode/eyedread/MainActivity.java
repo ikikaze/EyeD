@@ -261,9 +261,7 @@ public class MainActivity extends AppCompatActivity {
                 intent = new Intent(this,PassportOCRActivity.class);
                 break;
             case R.id.btnSearch:
-                //docTypeSelectionPopup();
-                Intent i = new Intent(this, TemplatesList.class);
-                startActivity(i);
+                docTypeSelectionPopup();
                 break;
             case R.id.btnConnect:
                 handleConnectBtnClik();
@@ -427,6 +425,17 @@ public class MainActivity extends AppCompatActivity {
             return realm.copyFromRealm(r.get(0));
         } finally {
             realm.close();
+        }
+    }
+
+    public void cancelCurrentServerProcess() {
+        if (MainActivity.getInstance().getActiveDesktopConnection() != null) {
+            Message msg = new Message();
+            Bundle data = new Bundle();
+            data.putString("destination", MainActivity.getInstance().getActiveDesktopConnection().getIp());
+            data.putString("message", "0022:CancelCurrentProcess");
+            msg.setData(data);
+            CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
         }
     }
 

@@ -113,7 +113,7 @@ public class TemplatesList extends AppCompatActivity implements TreeNode.TreeNod
         int id = view.getId();
         switch (id) {
             case R.id.btnBack:
-                cancelCurrentServerProcess();
+                MainActivity.getInstance().cancelCurrentServerProcess();
                 Intent homeIntent = new Intent(this, MainActivity.class);
                 startActivity(homeIntent);
                 break;
@@ -189,16 +189,6 @@ public class TemplatesList extends AppCompatActivity implements TreeNode.TreeNod
             }
         });
 
-    }
-
-    private void cancelCurrentServerProcess() {
-        //send templates
-        Message msg = new Message();
-        Bundle data = new Bundle();
-        data.putString("destination", MainActivity.getInstance().getActiveDesktopConnection().getIp());
-        data.putString("message", "0022:CancelCurrentProcess");
-        msg.setData(data);
-        CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
     }
 }
 

@@ -213,6 +213,8 @@ public class CommunicationService extends Service implements MessageListener {
             MainActivity.getInstance().setConnectionVisibility(false);
             String multicastMessage = "0006:09fe5d9775f04a4b8b9b081a8e732bae:"+Build.SERIAL;
             new MultiCastSender(MainActivity.getInstance(), "255.255.255.255", 33558, multicastMessage).start();
+
+            SendDocument.getInstance().hostUnavailable();
         }
     }
 
