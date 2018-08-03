@@ -353,6 +353,7 @@ public class MainActivity extends AppCompatActivity {
                             wifiAlertDialog.show();
                         }
                     }
+                    resetConnectionButtonText();
                 }
             });
             wifiOn = false;

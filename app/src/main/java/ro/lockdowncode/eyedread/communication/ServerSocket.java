@@ -47,6 +47,7 @@ public class ServerSocket {
         serverSocket.bind(listenAddress);
         serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
 
+        System.out.println("Server started..........");
 
         while (true) {
 

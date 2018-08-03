@@ -15,7 +15,7 @@
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="8dp"
         android:background="@drawable/button_bg"
         android:drawableTop="@mipmap/search"
         android:onClick="btnsClicked"
@@ -25,7 +25,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnID"
+        app:layout_constraintTop_toBottomOf="@+id/passlicense"
         app:layout_constraintVertical_bias="1.0" />
 
     <Button

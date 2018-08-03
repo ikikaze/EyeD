@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.cameraview.CameraView;
@@ -97,6 +98,7 @@ public class LicenseActivity extends AppCompatActivity {
         wind.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 
+
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
@@ -111,6 +113,8 @@ public class LicenseActivity extends AppCompatActivity {
         }
         Intent intent = getIntent();
         Document type = Document.valueOf(intent.getStringExtra("type"));
+        TextView tip = findViewById(R.id.captureType);
+        tip.setText(Document.getTitle(type));
 
         View rectview = findViewById(R.id.Rect);
         ViewGroup.LayoutParams params = rectview.getLayoutParams();

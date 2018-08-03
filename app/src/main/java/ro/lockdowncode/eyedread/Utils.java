@@ -37,6 +37,15 @@ public class Utils {
             }
             return null;
         }
+
+        public static String getTitle(Document d) {
+            switch (d) {
+                case BULETIN: return "CARTE DE IDENTITATE";
+                case PASAPORT: return "PASAPORT";
+                case PERMIS: return "PERMIS DE CONDUCERE";
+            }
+            return "";
+        }
     }
 
     public static String getIpAddress() {

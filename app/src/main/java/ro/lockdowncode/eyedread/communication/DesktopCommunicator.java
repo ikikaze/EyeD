@@ -27,9 +27,8 @@ public class DesktopCommunicator {
                 try {
                     serverSocket = new ServerSocket(serverAddress, serverPort, listener);
                     serverSocket.startServer();
-                } catch (IOException e) {
-                } catch (ClosedSelectorException e) {
-                    // do nothing (expected to get here)
+                } catch (IOException | ClosedSelectorException e) {
+                    e.printStackTrace(System.out);
                 }
             }
         };
