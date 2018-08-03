@@ -207,6 +207,13 @@ public class CommunicationService extends Service implements MessageListener {
             case "0021":
                 TemplatesList.getInstance().requestStatus(msgChunks[1]);
                 break;
+            case "0022":
+                if (msgChunks[1].equalsIgnoreCase("CancelCurrentProcess")) {
+                    if (SendDocument.getInstance() != null) {
+                        SendDocument.getInstance().processStoppedByDesktop();
+                    }
+                }
+                break;
         }
     }
 

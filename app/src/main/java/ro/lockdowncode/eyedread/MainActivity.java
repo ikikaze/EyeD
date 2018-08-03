@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     private Utils.Document searchDocType;
 
     private boolean wifiOn = false;
+    private boolean isDesktopAvailable = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void resetConnectionButtonText() {
         if (getConnStatus() == CONNECTION_STATUS.CONNECTED) {
-            btnConnect.setText("Conectat la "+getActiveDesktopConnection().getName());
+            btnConnect.setText("Conecteaza-te la "+getActiveDesktopConnection().getName());
         } else if (getConnStatus() == CONNECTION_STATUS.WAITING) {
             btnConnect.setText("Se asteapta conexiune de la "+getActiveDesktopConnection().getName());
         } else {
@@ -184,26 +185,48 @@ public class MainActivity extends AppCompatActivity {
         connDialog.setContentView(R.layout.connection_details_dialog);
         connDialog.setTitle("Title...");
 
-        String status = waiting ? "Se asteapta conexiune de la ": "Conectat la ";
+        String status = waiting ? "Se asteapta conexiune de la "+ getActiveDesktopConnection().getName(): (isDesktopAvailable) ?
+                "Desktopul "+ getActiveDesktopConnection().getName()+" este online":
+                "Desktopul "+ getActiveDesktopConnection().getName()+" este offline";
         TextView name = connDialog.findViewById(R.id.connectionName);
-        name.setText(status + getActiveDesktopConnection().getName());
+        name.setText(status);
         TextView ip = connDialog.findViewById(R.id.connectionIP);
         ip.setText(getActiveDesktopConnection().getIp());
+
+        ImageView refreshBtn = connDialog.findViewById(R.id.refreshBtn);
+        refreshBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getConnStatus() == CONNECTION_STATUS.CONNECTED && CommunicationService.uiMessageReceiverHandler != null) {
+                    // ping desktop
+                    Message msg = new Message();
+                    Bundle data = new Bundle();
+                    data.putString("destination", getActiveDesktopConnection().getIp());
+                    data.putString("message", "0012:" + Build.SERIAL + ":Ping");
+                    msg.setData(data);
+                    CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
+                    connDialog.dismiss();
+                }
+            }
+        });
+        if (isDesktopAvailable) {
+            refreshBtn.setVisibility(View.GONE);
+        }
 
         Button newConnectionButton = connDialog.findViewById(R.id.newConnectionBtn);
         newConnectionButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 new AlertDialog.Builder(MainActivity.getInstance())
                         .setTitle("Title")
-                        .setMessage("Do you really want to make a new connection ?")
+                        .setMessage("Doriti sa va conectati cu alt calculator ?")
                         .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 resetConnectionPreferences();
                                 Intent homepage = new Intent(MainActivity.this, PairingActivity.class);
                                 startActivity(homepage);
                             }})
-                        .setNegativeButton(android.R.string.no, null).show();
+                        .setNegativeButton(R.string.no, null).show();
             }
         });
         Button backButton = connDialog.findViewById(R.id.backBtn);
@@ -300,12 +323,15 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 Button btn = findViewById(R.id.btnConnect);
                 Drawable background = getApplicationContext().getResources().getDrawable(R.drawable.button_bg);
+
                 if (getConnStatus() == CONNECTION_STATUS.CONNECTED) {
                     if (connectionVisibility) {
                         background = getApplicationContext().getResources().getDrawable(R.drawable.button_bg_on);
-                    }
+                        btnConnect.setText("Conectat la "+getActiveDesktopConnection().getName());
+                     }
                 }
                 btn.setBackground(background);
+                isDesktopAvailable = connectionVisibility && getConnStatus()==CONNECTION_STATUS.CONNECTED;
             }
         });
     }

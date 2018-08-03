@@ -132,7 +132,7 @@ public class SendDocument extends AppCompatActivity {
                     status.setTextColor(Color.RED);
                 } else {
                     pb.setVisibility(View.VISIBLE);
-                    status.setTextColor(Color.BLACK);
+                    status.setTextColor(Color.WHITE);
                 }
             }
         });
@@ -211,5 +211,9 @@ public class SendDocument extends AppCompatActivity {
         } else {
             updateStatus("Wifi este oprit", true);
         }
+    }
+
+    public void processStoppedByDesktop() {
+        updateStatus("Procesul a fost oprit din calculator!", true);
     }
 }
