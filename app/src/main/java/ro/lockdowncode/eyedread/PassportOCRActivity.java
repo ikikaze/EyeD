@@ -268,7 +268,12 @@ public final class PassportOCRActivity extends AppCompatActivity {
         super.onPause();
         if (preview != null) {
             preview.stop();
+
+        }
+        if (cameraSource !=null)
+        {
             cameraSource.stop();
+
         }
     }
 
@@ -281,6 +286,10 @@ public final class PassportOCRActivity extends AppCompatActivity {
         super.onDestroy();
         if (preview != null) {
             preview.release();
+        }
+        if(cameraSource !=null)
+        {
+            cameraSource.release();
         }
     }
 

@@ -7,7 +7,7 @@
     android:background="#464646"
     tools:context=".MainActivity">
 
-    <Button
+    <ro.lockdowncode.eyedread.UI.MenuButton
         android:id="@+id/btnSearch"
         android:layout_width="match_parent"
         android:layout_height="81dp"
@@ -17,9 +17,9 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/button_bg"
-        android:drawableTop="@mipmap/search"
+        app:menu_button_image="@mipmap/search"
         android:onClick="btnsClicked"
-        android:text="@string/strSearch"
+        app:menu_button_text="@string/strSearch"
         android:textColor="@color/colorEyeD"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -28,7 +28,7 @@
         app:layout_constraintTop_toBottomOf="@+id/passlicense"
         app:layout_constraintVertical_bias="1.0" />
 
-    <Button
+    <ro.lockdowncode.eyedread.UI.MenuButton
         android:id="@+id/btnID"
         android:layout_width="match_parent"
         android:layout_height="169dp"
@@ -37,17 +37,17 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/button_bg"
-        android:drawableTop="@mipmap/idcard"
+        app:menu_button_image="@mipmap/idcard"
         android:onClick="btnsClicked"
         android:padding="10dp"
-        android:text="@string/strID"
+        app:menu_button_text="@string/strID"
         android:textColor="@color/colorEyeD"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnConnect"
         app:layout_constraintVertical_bias="0.338" />
 
-    <Button
+    <ro.lockdowncode.eyedread.UI.MenuButton
         android:id="@+id/btnConnect"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -56,15 +56,16 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/button_bg"
-        android:drawableTop="@mipmap/link"
+        app:menu_button_image="@mipmap/link"
         android:onClick="btnsClicked"
         android:padding="3dp"
         android:paddingBottom="3dp"
-        android:text="@string/strConnect"
+        app:menu_button_text="@string/strConnect"
         android:textColor="@color/colorEyeD"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 
     <LinearLayout
         android:id="@+id/passlicense"
@@ -82,31 +83,32 @@
         app:layout_constraintTop_toBottomOf="@+id/btnID"
         app:layout_constraintVertical_bias="1.0">
 
-        <Button
+        <ro.lockdowncode.eyedread.UI.MenuButton
             android:id="@+id/btnPass"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="5dp"
             android:layout_weight="1"
             android:background="@drawable/button_bg"
-            android:drawableTop="@mipmap/pass"
+            app:menu_button_image="@mipmap/pass"
             android:onClick="btnsClicked"
             android:padding="7dp"
-            android:text="@string/strPass"
+            app:menu_button_text="@string/strPass"
             android:textColor="@color/colorEyeD" />
 
-        <Button
+        <ro.lockdowncode.eyedread.UI.MenuButton
             android:id="@+id/btnLicense"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_margin="5dp"
             android:layout_weight="1"
             android:background="@drawable/button_bg"
-            android:drawableTop="@mipmap/license"
+            app:menu_button_image="@mipmap/license"
             android:onClick="btnsClicked"
             android:padding="7dp"
-            android:text="@string/strLicense"
+            app:menu_button_text="@string/strLicense"
             android:textColor="@color/colorEyeD" />
+
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
