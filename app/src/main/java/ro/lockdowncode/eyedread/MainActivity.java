@@ -25,6 +25,7 @@ import java.util.Date;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
+import ro.lockdowncode.eyedread.UI.MenuButton;
 import ro.lockdowncode.eyedread.communication.CommunicationService;
 import ro.lockdowncode.eyedread.pairing.PairingActivity;
 
@@ -38,11 +39,11 @@ public class MainActivity extends AppCompatActivity {
         return instance;
     }
 
-    private Button btnSearch;
-    private Button btnID;
-    private Button btnPass;
-    private Button btnLicense;
-    private Button btnConnect;
+    private MenuButton btnSearch;
+    private MenuButton btnID;
+    private MenuButton btnPass;
+    private MenuButton btnLicense;
+    private MenuButton btnConnect;
 
     private Dialog connDialog;
     private Dialog docTypeSelectionDialog;
@@ -321,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Button btn = findViewById(R.id.btnConnect);
+                MenuButton btn = findViewById(R.id.btnConnect);
                 Drawable background = getApplicationContext().getResources().getDrawable(R.drawable.button_bg);
 
                 if (getConnStatus() == CONNECTION_STATUS.CONNECTED) {
