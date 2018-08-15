@@ -24,6 +24,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.cameraview.CameraView;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.listener.multi.DialogOnAnyDeniedMultiplePermissionsListener;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
 import ro.lockdowncode.eyedread.UI.FlashButton;
 import ro.lockdowncode.eyedread.UI.RectSizeHandler;
@@ -106,6 +109,7 @@ public class LicenseActivity extends AppCompatActivity {
         if(actionBar != null)
             actionBar.hide();
 
+        handlePermissions();
 
         mCameraView = findViewById(R.id.camera);
         if (mCameraView != null) {
@@ -132,6 +136,38 @@ public class LicenseActivity extends AppCompatActivity {
 
         btnFlash = findViewById(R.id.btnFlash);
         btnFlash.setCameraView(mCameraView);
+    }
+
+    private void handlePermissions() {
+
+        MultiplePermissionsListener dialogMultiplePermissionsListener =
+                DialogOnAnyDeniedMultiplePermissionsListener.Builder
+                        .withContext(this)
+                        .withTitle("Permisiuni necesare")
+                        .withMessage("Aplicatia necesita acces la urmatoarele capabilitati ale telefonului:\n" +
+                                "-Camera : pentru a face poze la documente si a recunoaste informatiile din pasaport\n" +
+                                "-Stocare interna : pentru a putea salva pozele facute cu aplicatia in memoria telefonului\n" +
+                                "-Internet si WiFi : pentru a se putea realiza conexiunea cu aplicatia de desktop EyeDRead\n" +
+                                "-NFC : Pentru a putea scana cip-ul pasaportului\n" +
+                                "Acceptati aceste permisiuni pentru functionarea corespunzatoare a aplicatiei\n" +
+                                "Refuzul acceptarii permisiunilor poate produce comportament necorespunzator al aplicatiei.")
+                        .withButtonText(android.R.string.ok)
+                        .build();
+
+
+        Dexter.withActivity(this)
+                .withPermissions(
+                        Manifest.permission.CAMERA,
+                        Manifest.permission.NFC,
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.CHANGE_WIFI_MULTICAST_STATE,
+                        Manifest.permission.ACCESS_NETWORK_STATE,
+                        Manifest.permission.ACCESS_WIFI_STATE,
+                        Manifest.permission.RECEIVE_BOOT_COMPLETED,
+                        Manifest.permission.WAKE_LOCK,
+                        Manifest.permission.INTERNET
+                ).withListener(dialogMultiplePermissionsListener).check();
     }
 
 

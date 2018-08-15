@@ -1,5 +1,6 @@
 package ro.lockdowncode.eyedread;
 
+import android.Manifest;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,7 +22,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.DialogOnAnyDeniedMultiplePermissionsListener;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+
 import java.util.Date;
+import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -47,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Dialog connDialog;
     private Dialog docTypeSelectionDialog;
+    private Dialog passDialog;
     private AlertDialog wifiAlertDialog;
     private AlertDialog desktopBusy;
 
@@ -65,12 +75,46 @@ public class MainActivity extends AppCompatActivity {
 
         instance = this;
 
+        handlePermissions();
+
         initButtons();
 
         Intent intent = new Intent(MainActivity.this, CommunicationService.class);
         startService(intent);
 
         resetConnectionButtonText();
+    }
+
+    private void handlePermissions() {
+
+        MultiplePermissionsListener dialogMultiplePermissionsListener =
+                DialogOnAnyDeniedMultiplePermissionsListener.Builder
+                        .withContext(this)
+                        .withTitle("Permisiuni necesare")
+                        .withMessage("Aplicatia necesita acces la urmatoarele capabilitati ale telefonului:\n" +
+                                "-Camera : pentru a face poze la documente si a recunoaste informatiile din pasaport\n" +
+                                "-Stocare interna: pentru a putea salva pozele facute cu aplicatia in memoria telefonului\n" +
+                                "-Internet si WiFi : pentru a se putea realiza conexiunea cu aplicatia de desktop EyeDRead\n" +
+                                "-NFC : Pentru a putea scana cip-ul pasaportului\n" +
+                                "Acceptati aceste permisiuni pentru functionarea corespunzatoare a aplicatiei\n" +
+                                "Refuzul acceptarii permisiunilor poate produce comportament necorespunzator al aplicatiei.")
+                        .withButtonText(android.R.string.ok)
+                        .build();
+
+
+        Dexter.withActivity(this)
+                .withPermissions(
+                        Manifest.permission.CAMERA,
+                        Manifest.permission.NFC,
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.CHANGE_WIFI_MULTICAST_STATE,
+                        Manifest.permission.ACCESS_NETWORK_STATE,
+                        Manifest.permission.ACCESS_WIFI_STATE,
+                        Manifest.permission.RECEIVE_BOOT_COMPLETED,
+                        Manifest.permission.WAKE_LOCK,
+                        Manifest.permission.INTERNET
+                ).withListener(dialogMultiplePermissionsListener).check();
     }
 
     private void initButtons() {
@@ -99,6 +143,9 @@ public class MainActivity extends AppCompatActivity {
         if (wifiAlertDialog != null) {
             wifiAlertDialog.dismiss();
         }
+        if (passDialog != null) {
+            passDialog.dismiss();
+        }
     }
 
     @Override
@@ -113,6 +160,10 @@ public class MainActivity extends AppCompatActivity {
         }
         if (wifiAlertDialog != null) {
             wifiAlertDialog.dismiss();
+        }
+
+        if (passDialog != null) {
+            passDialog.dismiss();
         }
         if (desktopBusy != null) {
             desktopBusy.dismiss();
@@ -275,7 +326,7 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("type", Utils.Document.PERMIS.name());
                 break;
             case R.id.btnPass:
-                intent = new Intent(this,PassportOCRActivity.class);
+                handlePassportSelect();
                 break;
             case R.id.btnSearch:
                 docTypeSelectionPopup();
@@ -286,6 +337,50 @@ public class MainActivity extends AppCompatActivity {
         }
         if (intent != null)
             startActivity(intent);
+    }
+
+    private void handlePassportSelect() {
+
+        passDialog = new Dialog(this);
+        passDialog.setContentView(R.layout.passport_action_dialog);
+        passDialog.setTitle("Titlu..");
+
+
+        Button btnPic = passDialog.findViewById(R.id.btnPic);
+        Button btnScan = passDialog.findViewById(R.id.btnScan);
+        Button btnBack = passDialog.findViewById(R.id.btnBack);
+
+        btnPic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.instance,LicenseActivity.class);
+                intent.putExtra("type", Utils.Document.PASAPORT.name());
+                startActivity(intent);
+            }
+        });
+
+        btnScan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent;
+                intent = new Intent(MainActivity.instance,PassportOCRActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                passDialog.dismiss();
+            }
+        });
+
+        btnScan.setWidth(btnPic.getWidth());
+        passDialog.show();
+
+
+
+
     }
 
     private void docTypeSelectionPopup() {

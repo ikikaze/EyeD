@@ -33,4 +33,8 @@
     <string name="DUMPinfo">PRENUME\nNUME\nSEX\nTARA EMITERE\nNATIONALITATE\nDATA EXPIRARII\nDATA NASTERII\nCODPASAPORT\nSERIE\nCNP</string>
     <string name="yes">Da</string>
     <string name="no">Nu</string>
+    <string name="typeselect">Alegeti modul</string>
+    <string name="typepicture">Fotografiati si trimiteti</string>
+    <string name="typeNFC">Scanare NFC</string>
+    <string name="cancel">Inapoi</string>
 </resources>

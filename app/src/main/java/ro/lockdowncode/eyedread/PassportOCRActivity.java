@@ -287,10 +287,10 @@ public final class PassportOCRActivity extends AppCompatActivity {
         if (preview != null) {
             preview.release();
         }
-        if(cameraSource !=null)
-        {
-            cameraSource.release();
-        }
+//        if(cameraSource !=null)
+//        {
+//            cameraSource.release();
+//        }
     }
 
     /**
