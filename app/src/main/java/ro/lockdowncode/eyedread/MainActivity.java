@@ -295,20 +295,28 @@ public class MainActivity extends AppCompatActivity {
 
     public void searchDocSelected(View view) {
         int id = view.getId();
-        switch (id) {
-            case R.id.btnID:
-                searchDocType = Utils.Document.BULETIN;
-                break;
-            case R.id.btnLicense:
-                searchDocType = Utils.Document.PERMIS;
-                break;
-            case R.id.btnPass:
-                searchDocType = Utils.Document.PASAPORT;
-                break;
+        if (id == R.id.btnDocCancel)
+            docTypeSelectionDialog.dismiss();
+        else
+        {
+            switch (id)
+            {
+                case R.id.btnID:
+                    searchDocType = Utils.Document.BULETIN;
+                    break;
+                case R.id.btnLicense:
+                    searchDocType = Utils.Document.PERMIS;
+                    break;
+                case R.id.btnPass:
+                    searchDocType = Utils.Document.PASAPORT;
+                    break;
+            }
+
+
+                Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(galleryIntent, RESULT_LOAD_IMG);
         }
-        Intent galleryIntent = new Intent(Intent.ACTION_PICK,
-                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(galleryIntent, RESULT_LOAD_IMG);
     }
 
 
