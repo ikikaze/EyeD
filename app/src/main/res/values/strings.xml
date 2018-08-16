@@ -39,4 +39,8 @@
     <string name="cancel">Inapoi</string>
     <string name="NFCTitle">Scanare Cip NFC</string>
     <string name="NFCInfo">"Apropiati telefonul de pasaport, potrivind pozitia NFC-ului de pe telefon cu cea a cip-ului din pasaport, similar cu poza de mai sus"</string>
+    <string name="chipConnect">Conexiune la cip</string>
+    <string name="chipMRZInfo">Descarcare informatii</string>
+    <string name="chipPic">Descarcare poza</string>
+    <string name="NFCConnInfo">Mentineti telefonul in aceeasi pozitie fata de pasaport pana la citirea datelor</string>
 </resources>

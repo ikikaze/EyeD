@@ -1,42 +1,38 @@
 package ro.lockdowncode.eyedread;
 
-import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.TagLostException;
 import android.nfc.tech.IsoDep;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
-import android.support.design.widget.Snackbar;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import net.sf.scuba.smartcards.CardFileInputStream;
 import net.sf.scuba.smartcards.CardService;
+import net.sf.scuba.smartcards.CardServiceException;
 
 import org.jmrtd.BACKey;
 import org.jmrtd.BACKeySpec;
 import org.jmrtd.PassportService;
-import org.jmrtd.lds.COMFile;
 import org.jmrtd.lds.CardAccessFile;
 import org.jmrtd.lds.DG1File;
 import org.jmrtd.lds.DG2File;
 import org.jmrtd.lds.FaceImageInfo;
 import org.jmrtd.lds.FaceInfo;
 import org.jmrtd.lds.LDS;
-import org.jmrtd.lds.LDSFile;
 import org.jmrtd.lds.MRZInfo;
 import org.jmrtd.lds.PACEInfo;
-import org.jmrtd.lds.SODFile;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.ByteArrayInputStream;
@@ -55,8 +51,15 @@ public class NFCActivity extends AppCompatActivity {
 
     static final String TAG = "NFCActivity";
 
-    TextView txt;
-    ProgressBar loadingbar;
+    TextView txtNFCExample;
+    ImageView imgNFCExample,imgConn,imgPic,imgMRZ;
+    TextView txtConn,txtMRZ,txtPic;
+    ProgressBar pbConn,pbMRZ, pbPic;
+    ConstraintLayout progressList;
+    DG1File dg1File;
+    DG2File dg2File;
+
+    Boolean mrzInfoDone =false,picDone = false;
     String passNumber, passExpDate, passBDay;
 
 
@@ -64,13 +67,26 @@ public class NFCActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nfc);
-        txt = findViewById(R.id.tmpTxt);
-        loadingbar = findViewById(R.id.progressBar);
 
-        loadingbar.setVisibility(View.INVISIBLE);
+        txtNFCExample = findViewById(R.id.txtNFCEx);
+        imgNFCExample=findViewById(R.id.imgNFCEx);
 
+        txtConn = findViewById(R.id.txtConnect);
+        txtMRZ = findViewById(R.id.txtMRZ);
+        txtPic = findViewById(R.id.txtPic);
 
-        Security.insertProviderAt(new BouncyCastleProvider(), 1);
+        pbConn = findViewById(R.id.progressConnect);
+        pbMRZ = findViewById(R.id.progressMRZ);
+        pbPic = findViewById(R.id.progressPic);
+
+        imgConn = findViewById(R.id.imgConnStatus);
+        imgMRZ = findViewById(R.id.imgMRZStatus);
+        imgPic = findViewById(R.id.imgPicStatus);
+
+        progressList = findViewById(R.id.ProgressList);
+        progressList.setVisibility(View.INVISIBLE);
+
+        Security.addProvider(new BouncyCastleProvider());
 
         Intent intent = getIntent();
         passNumber = intent.getStringExtra("Number");
@@ -91,13 +107,21 @@ public class NFCActivity extends AppCompatActivity {
                         && passExpDate != null && !passExpDate.isEmpty()
                         && passBDay != null && !passBDay.isEmpty()) {
                     BACKeySpec bacKey = new BACKey(passNumber, passBDay, passExpDate);
+
+                    imgNFCExample.setVisibility(View.INVISIBLE);
+                    progressList.setVisibility(View.VISIBLE);
+                    txtNFCExample.setText(R.string.NFCConnInfo);
+
                     new ReadTask(IsoDep.get(tag), bacKey).execute();
-                    //mainLayout.setVisibility(View.GONE);
-                    //loadingLayout.setVisibility(View.VISIBLE);
+
                 } else {
-                    Snackbar.make(txt, "BAD INPUT DATA", Snackbar.LENGTH_SHORT).show();
+                   Toast.makeText(this,"Datele citite sunt incorecte, rescanati", Toast.LENGTH_SHORT).show();
+                    Intent intentBack = new Intent(NFCActivity.this,PassportOCRActivity.class);
+                    intentBack.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intentBack);
+                    NFCActivity.this.finish();
                 }
-                //txt.setText("FOUND IT BOIII");
+
 
             }
         }
@@ -141,10 +165,7 @@ public class NFCActivity extends AppCompatActivity {
             this.bacKey = bacKey;
         }
 
-        private COMFile comFile;
-        private SODFile sodFile;
-        private DG1File dg1File;
-        private DG2File dg2File;
+
 
         private Bitmap bitmap;
 
@@ -152,16 +173,11 @@ public class NFCActivity extends AppCompatActivity {
         protected Exception doInBackground(Void... params) {
             try {
 
-                loadingbar.setVisibility(View.VISIBLE);
-                txt.setText("STAI HO CA MA INCARC, NU MA MISCA");
-
                 CardService cardService = CardService.getInstance(isoDep);
-                //cardService.open();
-
+                cardService.open();
 
                 PassportService service = new PassportService(cardService);
                 service.open();
-
 
                 boolean paceSucceeded = false;
                 try {
@@ -188,55 +204,111 @@ public class NFCActivity extends AppCompatActivity {
                     }
                 }
 
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        pbConn.setVisibility(View.GONE);
+                        imgConn.setVisibility(View.VISIBLE);
+
+                    }
+                });
+
+
                 LDS lds = new LDS();
 
-//                if(!isoDep.isConnected() || !service.isOpen())
-//                    throw new TagLostException();
-//                CardFileInputStream comIn = service.getInputStream(PassportService.EF_COM);
-//                lds.add(PassportService.EF_COM, comIn, comIn.getLength());
-//                comFile = lds.getCOMFile();
-//
-//                if(!isoDep.isConnected() || !service.isOpen())
-//                    throw new TagLostException();
-//                CardFileInputStream sodIn = service.getInputStream(PassportService.EF_SOD);
-//                lds.add(PassportService.EF_SOD, sodIn, sodIn.getLength());
-//                sodFile = lds.getSODFile();
 
-
-                if(!isoDep.isConnected() || !service.isOpen())
+                if(!isoDep.isConnected() || !service.isOpen()) {
+                    showErrorStatuses();
                     throw new TagLostException();
-
-                CardFileInputStream dg1In = service.getInputStream(PassportService.EF_DG1);
-                lds.add(PassportService.EF_DG1, dg1In, dg1In.getLength());
-                dg1File = lds.getDG1File();
-
-
-
-                if(!isoDep.isConnected() || !service.isOpen())
-                    throw new TagLostException();
-                CardFileInputStream dg2In = service.getInputStream(PassportService.EF_DG2);
-                lds.add(PassportService.EF_DG2, dg2In, dg2In.getLength());
-                dg2File = lds.getDG2File();
-
-                List<FaceImageInfo> allFaceImageInfos = new ArrayList<>();
-                List<FaceInfo> faceInfos = dg2File.getFaceInfos();
-                for (FaceInfo faceInfo : faceInfos) {
-                    allFaceImageInfos.addAll(faceInfo.getFaceImageInfos());
                 }
 
-                if (!allFaceImageInfos.isEmpty()) {
-                    FaceImageInfo faceImageInfo = allFaceImageInfos.iterator().next();
+                if (!mrzInfoDone )
+                {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            pbMRZ.setVisibility(View.VISIBLE);
+                            imgMRZ.setVisibility(View.GONE);
+                            imgMRZ.setImageResource(R.drawable.ic_check_green_24dp);
+                        }
+                    });
 
-                    int imageLength = faceImageInfo.getImageLength();
-                    DataInputStream dataInputStream = new DataInputStream(faceImageInfo.getImageInputStream());
-                    byte[] buffer = new byte[imageLength];
-                    dataInputStream.readFully(buffer, 0, imageLength);
-                    InputStream inputStream = new ByteArrayInputStream(buffer, 0, imageLength);
+                    CardFileInputStream dg1In = service.getInputStream(PassportService.EF_DG1);
+                    lds.add(PassportService.EF_DG1, dg1In, dg1In.getLength());
+                    dg1File = lds.getDG1File();
 
-                    bitmap = ImageUtil.decodeImage(
-                            NFCActivity.this, faceImageInfo.getMimeType(), inputStream);
 
+                    if (!isoDep.isConnected() || !service.isOpen()) {
+
+                        showErrorStatuses();
+                        throw new TagLostException();
+                    }
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            pbMRZ.setVisibility(View.GONE);
+                            imgMRZ.setVisibility(View.VISIBLE);
+                            mrzInfoDone = true;
+                        }
+                    });
                 }
+
+                else
+                {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            pbMRZ.setVisibility(View.GONE);
+                            imgMRZ.setVisibility(View.VISIBLE);
+                        }
+                    });
+                }
+
+                if(!picDone) {
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            pbPic.setVisibility(View.VISIBLE);
+                            imgPic.setVisibility(View.GONE);
+                            imgPic.setImageResource(R.drawable.ic_check_green_24dp);
+                        }
+                    });
+
+                    CardFileInputStream dg2In = service.getInputStream(PassportService.EF_DG2);
+                    lds.add(PassportService.EF_DG2, dg2In, dg2In.getLength());
+                    dg2File = lds.getDG2File();
+
+                    List<FaceImageInfo> allFaceImageInfos = new ArrayList<>();
+                    List<FaceInfo> faceInfos = dg2File.getFaceInfos();
+                    for (FaceInfo faceInfo : faceInfos) {
+                        allFaceImageInfos.addAll(faceInfo.getFaceImageInfos());
+                    }
+
+                    if (!allFaceImageInfos.isEmpty()) {
+                        FaceImageInfo faceImageInfo = allFaceImageInfos.iterator().next();
+
+                        int imageLength = faceImageInfo.getImageLength();
+                        DataInputStream dataInputStream = new DataInputStream(faceImageInfo.getImageInputStream());
+                        byte[] buffer = new byte[imageLength];
+                        dataInputStream.readFully(buffer, 0, imageLength);
+                        InputStream inputStream = new ByteArrayInputStream(buffer, 0, imageLength);
+
+                        bitmap = ImageUtil.decodeImage(
+                                NFCActivity.this, faceImageInfo.getMimeType(), inputStream);
+
+                    }
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            pbPic.setVisibility(View.GONE);
+                            imgPic.setVisibility(View.VISIBLE);
+                            picDone = true;
+                        }
+                    });
+                }
+
 
             } catch (Exception e) {
                 return e;
@@ -246,19 +318,24 @@ public class NFCActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Exception result) {
-            //mainLayout.setVisibility(View.VISIBLE);
-            //loadingLayout.setVisibility(View.GONE);
             if(result !=null) {
-                Toast.makeText(NFCActivity.this, result.getLocalizedMessage(), Toast.LENGTH_SHORT);
+
                 Log.d("NFCResult", result.getClass().toString());
-                txt.setText(result.getClass().toString());
+                showErrorStatuses();
+
+                if(result instanceof CardServiceException) {
+                    Toast.makeText(NFCActivity.this, "Datele citite sunt incorecte, rescanati", Toast.LENGTH_SHORT).show();
+                    Intent intentBack = new Intent(NFCActivity.this, PassportOCRActivity.class);
+                    intentBack.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intentBack);
+                    NFCActivity.this.finish();
+                }
             }
 
 
 
 
-           if (result == null) {
-//
+           if (result == null) {//
                 Intent intent;
                 if (getCallingActivity() != null) {
                     intent = new Intent();
@@ -320,6 +397,38 @@ public class NFCActivity extends AppCompatActivity {
             }
         }
 
+    }
+
+    private void showErrorStatuses() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                if(pbConn.getVisibility() == View.VISIBLE)
+                {
+                    pbConn.setVisibility(View.GONE);
+                    imgConn.setImageResource(R.drawable.ic_if_close_icon_1398919);
+                    imgConn.setVisibility(View.VISIBLE);
+                }
+
+                if(pbMRZ.getVisibility() == View.VISIBLE)
+                {
+                    pbMRZ.setVisibility(View.GONE);
+                    imgMRZ.setImageResource(R.drawable.ic_if_close_icon_1398919);
+                    imgMRZ.setVisibility(View.VISIBLE);
+                }
+
+                if(pbPic.getVisibility() == View.VISIBLE)
+                {
+                    pbPic.setVisibility(View.GONE);
+                    imgPic.setImageResource(R.drawable.ic_if_close_icon_1398919);
+                    imgPic.setVisibility(View.VISIBLE);
+                }
+
+
+
+            }
+        });
     }
 
 }
