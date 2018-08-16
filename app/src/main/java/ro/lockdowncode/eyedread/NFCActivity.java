@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
+import android.nfc.TagLostException;
 import android.nfc.tech.IsoDep;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
@@ -70,8 +71,8 @@ public class NFCActivity extends AppCompatActivity {
 
 
         Security.insertProviderAt(new BouncyCastleProvider(), 1);
-        Intent intent = getIntent();
 
+        Intent intent = getIntent();
         passNumber = intent.getStringExtra("Number");
         passBDay = intent.getStringExtra("Bday");
         passExpDate = intent.getStringExtra("ExpDate");
@@ -83,6 +84,7 @@ public class NFCActivity extends AppCompatActivity {
     public void onNewIntent(Intent intent) {
         if (NfcAdapter.ACTION_TECH_DISCOVERED.equals(intent.getAction())) {
             Tag tag = intent.getExtras().getParcelable(NfcAdapter.EXTRA_TAG);
+
             if (Arrays.asList(tag.getTechList()).contains("android.nfc.tech.IsoDep")) {
 
                 if (passNumber != null && !passNumber.isEmpty()
@@ -150,15 +152,16 @@ public class NFCActivity extends AppCompatActivity {
         protected Exception doInBackground(Void... params) {
             try {
 
-
                 loadingbar.setVisibility(View.VISIBLE);
                 txt.setText("STAI HO CA MA INCARC, NU MA MISCA");
 
                 CardService cardService = CardService.getInstance(isoDep);
                 //cardService.open();
 
+
                 PassportService service = new PassportService(cardService);
                 service.open();
+
 
                 boolean paceSucceeded = false;
                 try {
@@ -187,18 +190,30 @@ public class NFCActivity extends AppCompatActivity {
 
                 LDS lds = new LDS();
 
-                CardFileInputStream comIn = service.getInputStream(PassportService.EF_COM);
-                lds.add(PassportService.EF_COM, comIn, comIn.getLength());
-                comFile = lds.getCOMFile();
+//                if(!isoDep.isConnected() || !service.isOpen())
+//                    throw new TagLostException();
+//                CardFileInputStream comIn = service.getInputStream(PassportService.EF_COM);
+//                lds.add(PassportService.EF_COM, comIn, comIn.getLength());
+//                comFile = lds.getCOMFile();
+//
+//                if(!isoDep.isConnected() || !service.isOpen())
+//                    throw new TagLostException();
+//                CardFileInputStream sodIn = service.getInputStream(PassportService.EF_SOD);
+//                lds.add(PassportService.EF_SOD, sodIn, sodIn.getLength());
+//                sodFile = lds.getSODFile();
 
-                CardFileInputStream sodIn = service.getInputStream(PassportService.EF_SOD);
-                lds.add(PassportService.EF_SOD, sodIn, sodIn.getLength());
-                sodFile = lds.getSODFile();
+
+                if(!isoDep.isConnected() || !service.isOpen())
+                    throw new TagLostException();
 
                 CardFileInputStream dg1In = service.getInputStream(PassportService.EF_DG1);
                 lds.add(PassportService.EF_DG1, dg1In, dg1In.getLength());
                 dg1File = lds.getDG1File();
 
+
+
+                if(!isoDep.isConnected() || !service.isOpen())
+                    throw new TagLostException();
                 CardFileInputStream dg2In = service.getInputStream(PassportService.EF_DG2);
                 lds.add(PassportService.EF_DG2, dg2In, dg2In.getLength());
                 dg2File = lds.getDG2File();
@@ -233,7 +248,11 @@ public class NFCActivity extends AppCompatActivity {
         protected void onPostExecute(Exception result) {
             //mainLayout.setVisibility(View.VISIBLE);
             //loadingLayout.setVisibility(View.GONE);
-
+            if(result !=null) {
+                Toast.makeText(NFCActivity.this, result.getLocalizedMessage(), Toast.LENGTH_SHORT);
+                Log.d("NFCResult", result.getClass().toString());
+                txt.setText(result.getClass().toString());
+            }
 
 
 

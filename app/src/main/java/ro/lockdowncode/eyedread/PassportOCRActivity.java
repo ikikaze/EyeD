@@ -241,7 +241,7 @@ public final class PassportOCRActivity extends AppCompatActivity {
         cameraSource =
                 new CameraSource.Builder(getApplicationContext(), textRecognizer)
                         .setFacing(CameraSource.CAMERA_FACING_BACK)
-                        .setRequestedPreviewSize(RectSizeHandler.getScreenWidth(), RectSizeHandler.getScreenHeight())
+                        .setRequestedPreviewSize(RectSizeHandler.getScreenWidth(), RectSizeHandler.getScreenHeight()) //TODO optimize this @Radu
                         .setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)
                         .setRequestedFps(3.0f)
                         .setFlashMode(Camera.Parameters.FLASH_MODE_AUTO)

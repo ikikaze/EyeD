@@ -35,6 +35,8 @@
     <string name="no">Nu</string>
     <string name="typeselect">Alegeti modul</string>
     <string name="typepicture">Fotografiati si trimiteti</string>
-    <string name="typeNFC">Scanare NFC</string>
+    <string name="typeNFC">Scanare cip</string>
     <string name="cancel">Inapoi</string>
+    <string name="NFCTitle">Scanare Cip NFC</string>
+    <string name="NFCInfo">"Apropiati telefonul de pasaport, potrivind pozitia NFC-ului de pe telefon cu cea a cip-ului din pasaport, similar cu poza de mai sus"</string>
 </resources>
