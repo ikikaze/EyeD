@@ -20,12 +20,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.cameraview.CameraView;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.listener.multi.DialogOnAnyDeniedMultiplePermissionsListener;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
+import ro.lockdowncode.eyedread.UI.FlashButton;
 import ro.lockdowncode.eyedread.UI.RectSizeHandler;
-import ro.lockdowncode.eyedread.Utils.Type;
+import ro.lockdowncode.eyedread.Utils.Document;
 
 
 public class LicenseActivity extends AppCompatActivity {
@@ -33,9 +38,8 @@ public class LicenseActivity extends AppCompatActivity {
 
     private static final String TAG = "EDR-L";
     private CameraView mCameraView;
+    private FlashButton btnFlash;
     private static final int REQUEST_CAMERA_PERMISSION = 1;
-    private static final String FRAGMENT_DIALOG = "dialog";
-    private PictureHandler mPictureHandler;
     private Window wind;
 
 
@@ -58,39 +62,14 @@ public class LicenseActivity extends AppCompatActivity {
             Toast.makeText(cameraView.getContext(), R.string.picture_taken, Toast.LENGTH_SHORT)
                     .show();
 
-            mPictureHandler.savePicture(data);
-            mPictureHandler.sendPictureToPC(data);
+            EyeDRead.getInstance().setCapturedPhotoData(data);
+            mCameraView.stop();
 
-            /*Intent homepage = new Intent(LicenseActivity.this, MainActivity.class);
-            startActivity(homepage);
-            /*getBackgroundHandler().post(new Runnable() {
-                @Override
-                public void run() {
-                    File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-                            "picture.jpg");
-                    OutputStream os = null;
-                    try {
-
-                        os = new FileOutputStream(file);
-                        os.write(data);
-                        os.close();
-                    } catch (IOException e) {
-                        Log.w(TAG, "Cannot write to " + file, e);
-                    } finally {
-                        if (os != null) {
-                            try {
-                                os.close();
-                                Intent intent =
-                                        new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                                intent.setData(Uri.fromFile(file));
-                                sendBroadcast(intent);
-                            } catch (IOException e) {
-                                // Ignore
-                            }
-                        }
-                    }
-                }
-            });*/
+            Intent sendDocument = new Intent(LicenseActivity.this, SendDocument.class);
+            sendDocument.putExtra("source", "camera");
+            sendDocument.putExtra("type", getIntent().getStringExtra("type"));
+            sendDocument.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(sendDocument);
         }
 
     };
@@ -122,23 +101,24 @@ public class LicenseActivity extends AppCompatActivity {
         wind.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 
+
         View decorView = getWindow().getDecorView();
-// Hide the status bar.
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
         decorView.setSystemUiVisibility(uiOptions);
-// Remember that you should never show the action bar if the
-// status bar is hidden, so hide that too if necessary.
         ActionBar actionBar = getActionBar();
         if(actionBar != null)
             actionBar.hide();
 
+        handlePermissions();
 
         mCameraView = findViewById(R.id.camera);
         if (mCameraView != null) {
             mCameraView.addCallback(mCallback);
         }
         Intent intent = getIntent();
-        Type type = Type.valueOf(intent.getStringExtra("type"));
+        Document type = Document.valueOf(intent.getStringExtra("type"));
+        TextView tip = findViewById(R.id.captureType);
+        tip.setText(Document.getTitle(type));
 
         View rectview = findViewById(R.id.Rect);
         ViewGroup.LayoutParams params = rectview.getLayoutParams();
@@ -154,7 +134,40 @@ public class LicenseActivity extends AppCompatActivity {
             fab.setOnClickListener(mOnClickListener);
         }
 
-        mPictureHandler = new PictureHandler(this, type);
+        btnFlash = findViewById(R.id.btnFlash);
+        btnFlash.setCameraView(mCameraView);
+    }
+
+    private void handlePermissions() {
+
+        MultiplePermissionsListener dialogMultiplePermissionsListener =
+                DialogOnAnyDeniedMultiplePermissionsListener.Builder
+                        .withContext(this)
+                        .withTitle("Permisiuni necesare")
+                        .withMessage("Aplicatia necesita acces la urmatoarele capabilitati ale telefonului:\n" +
+                                "-Camera : pentru a face poze la documente si a recunoaste informatiile din pasaport\n" +
+                                "-Stocare interna : pentru a putea salva pozele facute cu aplicatia in memoria telefonului\n" +
+                                "-Internet si WiFi : pentru a se putea realiza conexiunea cu aplicatia de desktop EyeDRead\n" +
+                                "-NFC : Pentru a putea scana cip-ul pasaportului\n" +
+                                "Acceptati aceste permisiuni pentru functionarea corespunzatoare a aplicatiei\n" +
+                                "Refuzul acceptarii permisiunilor poate produce comportament necorespunzator al aplicatiei.")
+                        .withButtonText(android.R.string.ok)
+                        .build();
+
+
+        Dexter.withActivity(this)
+                .withPermissions(
+                        Manifest.permission.CAMERA,
+                        Manifest.permission.NFC,
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.CHANGE_WIFI_MULTICAST_STATE,
+                        Manifest.permission.ACCESS_NETWORK_STATE,
+                        Manifest.permission.ACCESS_WIFI_STATE,
+                        Manifest.permission.RECEIVE_BOOT_COMPLETED,
+                        Manifest.permission.WAKE_LOCK,
+                        Manifest.permission.INTERNET
+                ).withListener(dialogMultiplePermissionsListener).check();
     }
 
 
@@ -175,8 +188,6 @@ public class LicenseActivity extends AppCompatActivity {
         mCameraView.stop();
         super.onPause();
     }
-
-
 
 }
 

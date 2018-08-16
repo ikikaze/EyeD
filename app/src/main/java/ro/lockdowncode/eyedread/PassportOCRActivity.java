@@ -45,7 +45,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.vision.CameraSource;
+import ro.lockdowncode.eyedread.UI.CameraSource;
 import com.google.android.gms.vision.text.Line;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
@@ -54,6 +54,7 @@ import java.io.IOException;
 import java.util.Locale;
 
 import ro.lockdowncode.eyedread.UI.CameraSourcePreview;
+import ro.lockdowncode.eyedread.UI.FlashButton;
 import ro.lockdowncode.eyedread.UI.GraphicOverlay;
 import ro.lockdowncode.eyedread.UI.RectSizeHandler;
 import ro.lockdowncode.eyedread.ocr.OcrDetectorProcessor;
@@ -85,10 +86,11 @@ public final class PassportOCRActivity extends AppCompatActivity {
     // Helper objects for detecting taps and pinches.
     private ScaleGestureDetector scaleGestureDetector;
     private GestureDetector gestureDetector;
+    private FlashButton btnFlash;
 
     // A TextToSpeech engine for speaking a String value.
     private TextToSpeech tts;
-    private LinearLayout mrzArea;
+    private ConstraintLayout mrzArea;
     private int[] boxWidthHeight = new int[2];
 
     /**
@@ -113,7 +115,7 @@ public final class PassportOCRActivity extends AppCompatActivity {
         ViewGroup.LayoutParams params = rectview.getLayoutParams();
 
         RectSizeHandler sizeHandler = new RectSizeHandler();
-        int[] widthHeight = sizeHandler.getRectSizes(Utils.Type.PASAPORT);
+        int[] widthHeight = sizeHandler.getRectSizes(Utils.Document.PASAPORT);
         params.width = widthHeight[0];
         params.height = widthHeight[1];
         rectview.setLayoutParams(params);
@@ -130,6 +132,8 @@ public final class PassportOCRActivity extends AppCompatActivity {
 
         preview = (CameraSourcePreview) findViewById(R.id.preview);
         graphicOverlay = (GraphicOverlay<OcrGraphic>) findViewById(R.id.graphicOverlay);
+
+        btnFlash = findViewById(R.id.btnFlashPass);
 
         // Set good defaults for capturing text.
         boolean autoFocus = true;
@@ -237,12 +241,14 @@ public final class PassportOCRActivity extends AppCompatActivity {
         cameraSource =
                 new CameraSource.Builder(getApplicationContext(), textRecognizer)
                         .setFacing(CameraSource.CAMERA_FACING_BACK)
-                        .setRequestedPreviewSize(1280, 1024)
-                        .setAutoFocusEnabled(true)
+                        .setRequestedPreviewSize(RectSizeHandler.getScreenWidth(), RectSizeHandler.getScreenHeight())
+                        .setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)
                         .setRequestedFps(3.0f)
+                        .setFlashMode(Camera.Parameters.FLASH_MODE_AUTO)
                         .build();
 
         proc.setCameraSource(cameraSource);
+        btnFlash.setCameraSource(cameraSource);
     }
 
     /**
@@ -262,6 +268,12 @@ public final class PassportOCRActivity extends AppCompatActivity {
         super.onPause();
         if (preview != null) {
             preview.stop();
+
+        }
+        if (cameraSource !=null)
+        {
+            cameraSource.stop();
+
         }
     }
 
@@ -275,6 +287,10 @@ public final class PassportOCRActivity extends AppCompatActivity {
         if (preview != null) {
             preview.release();
         }
+//        if(cameraSource !=null)
+//        {
+//            cameraSource.release();
+//        }
     }
 
     /**

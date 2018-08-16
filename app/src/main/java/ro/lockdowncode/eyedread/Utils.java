@@ -16,7 +16,37 @@ import java.util.Enumeration;
 
 public class Utils {
 
-    public enum Type {BULETIN,PASAPORT,PERMIS}
+    public enum Document {
+        BULETIN(1),
+        PASAPORT(2),
+        PERMIS(3);
+
+        private int type;
+        Document(int type) {
+            this.type = type;
+        }
+        public int getType() {
+            return type;
+        }
+
+        public static Document getById(String id) {
+            switch (id) {
+                case "1": return Document.BULETIN;
+                case "2": return Document.PASAPORT;
+                case "3": return Document.PERMIS;
+            }
+            return null;
+        }
+
+        public static String getTitle(Document d) {
+            switch (d) {
+                case BULETIN: return "CARTE DE IDENTITATE";
+                case PASAPORT: return "PASAPORT";
+                case PERMIS: return "PERMIS DE CONDUCERE";
+            }
+            return "";
+        }
+    }
 
     public static String getIpAddress() {
         try {

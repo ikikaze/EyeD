@@ -31,4 +31,10 @@
     <string name="ocr_error">"Error reading text: %1$s"</string>
     <string name="MRZ_hint">\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c\u003c</string>
     <string name="DUMPinfo">PRENUME\nNUME\nSEX\nTARA EMITERE\nNATIONALITATE\nDATA EXPIRARII\nDATA NASTERII\nCODPASAPORT\nSERIE\nCNP</string>
+    <string name="yes">Da</string>
+    <string name="no">Nu</string>
+    <string name="typeselect">Alegeti modul</string>
+    <string name="typepicture">Fotografiati si trimiteti</string>
+    <string name="typeNFC">Scanare NFC</string>
+    <string name="cancel">Inapoi</string>
 </resources>

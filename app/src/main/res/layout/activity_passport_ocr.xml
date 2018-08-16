@@ -25,10 +25,53 @@
 
     </ro.lockdowncode.eyedread.UI.CameraSourcePreview>
 
+    <View
+        android:id="@+id/pAlphaRight"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/alphabg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/RectView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <View
+        android:id="@+id/pAlphaTop"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/alphabg"
+        app:layout_constraintBottom_toTopOf="@+id/RectView"
+        app:layout_constraintEnd_toStartOf="@+id/pAlphaRight"
+        app:layout_constraintStart_toEndOf="@+id/pAlphaLeft"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <View
+        android:id="@+id/pAlphaBottom"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/alphabg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/pAlphaRight"
+        app:layout_constraintStart_toEndOf="@+id/pAlphaLeft"
+        app:layout_constraintTop_toBottomOf="@+id/RectView" />
+
+    <View
+        android:id="@+id/pAlphaLeft"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/alphabg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/RectView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.432" />
+
     <android.support.constraint.ConstraintLayout
         android:id="@+id/RectView"
         android:layout_width="380dp"
-        android:layout_height="match_parent"
+        android:layout_height="262dp"
         android:background="@drawable/rectbg"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -37,7 +80,17 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:background="@drawable/rectbg">
 
-        <LinearLayout
+        <View
+            android:id="@+id/pAlphaPass"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/alphabg_pass"
+            app:layout_constraintBottom_toTopOf="@+id/MRZArea"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <android.support.constraint.ConstraintLayout
             android:id="@+id/MRZArea"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -52,35 +105,65 @@
 
             <TextView
                 android:id="@+id/MRZTop"
-                android:layout_width="match_parent"
-                android:layout_height="19dp"
+                android:layout_width="0dp"
+                android:layout_height="24dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:autoText="true"
                 android:text="@string/MRZ_hint"
                 android:textAlignment="center"
                 android:textColor="#ffffff"
+                app:autoSizeMaxTextSize="30sp"
+                app:autoSizeMinTextSize="12sp"
+                app:autoSizeTextType="uniform"
                 app:layout_constraintBottom_toTopOf="@+id/MRZBottom"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="1.0"
+                tools:layout_conversion_absoluteHeight="19dp"
+                tools:layout_conversion_absoluteWidth="380dp"
                 tools:text="@string/MRZ_hint" />
 
             <TextView
                 android:id="@+id/MRZBottom"
-                android:layout_width="match_parent"
-                android:layout_height="26dp"
+                android:layout_width="0dp"
+                android:layout_height="23dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
                 android:text="@string/MRZ_hint"
                 android:textAlignment="center"
                 android:textColor="#ffffff"
+                app:autoSizeMaxTextSize="30sp"
+                app:autoSizeMinTextSize="12sp"
+                app:autoSizeTextType="uniform"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.864"
+                app:layout_constraintVertical_bias="0.7"
+                tools:layout_conversion_absoluteHeight="26dp"
+                tools:layout_conversion_absoluteWidth="380dp"
                 tools:text="@string/MRZ_hint" />
-        </LinearLayout>
+        </android.support.constraint.ConstraintLayout>
 
     </android.support.constraint.ConstraintLayout>
+
+    <ro.lockdowncode.eyedread.UI.FlashButton
+        android:id="@+id/btnFlashPass"
+        android:layout_width="49dp"
+        android:layout_height="65dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/pAlphaBottom"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/pAlphaTop"
+        app:layout_constraintVertical_bias="0.0" />
 
 </android.support.constraint.ConstraintLayout>

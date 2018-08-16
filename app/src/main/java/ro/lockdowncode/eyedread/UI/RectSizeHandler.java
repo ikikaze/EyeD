@@ -1,7 +1,8 @@
 package ro.lockdowncode.eyedread.UI;
 
 import android.content.res.Resources;
-import ro.lockdowncode.eyedread.Utils.Type;
+
+import ro.lockdowncode.eyedread.Utils.Document;
 
 public class RectSizeHandler {
 
@@ -9,15 +10,15 @@ public class RectSizeHandler {
 
 
     //return array of 2 elements , width and height of rect based on type
-    public int[] getRectSizes(Type type)
+    public int[] getRectSizes(Document type)
     {
         int[] widthHeight = {0,0};
         double objHeight = 0 ,objWidth = 0;
         //lower as to not extend to edges of screen
 
 
-        int sWidth = (int)(getScreenWidth() * 0.6);
-        int sHeight = (int)(getScreenHeight()*0.6);
+        int sWidth = (int)(getScreenWidth() * 0.95);
+        int sHeight = (int)(getScreenHeight()*0.98);
 
         switch (type)
         { //sizes in mm;
@@ -27,8 +28,8 @@ public class RectSizeHandler {
             default: break; //this should never ever happen
         }
 
-        widthHeight[0] = (int)(sWidth/objWidth * objWidth);
-        widthHeight[1] = (int)(sWidth/objWidth * objHeight);
+        widthHeight[0] = (int)(((int)(sHeight/objHeight)) * objWidth);
+        widthHeight[1] = (int)(((int)(sHeight/objHeight)) * objHeight);
 
         return widthHeight;
     }
@@ -36,12 +37,12 @@ public class RectSizeHandler {
 
 
 
-    private int getScreenWidth()
+    public static int getScreenWidth()
     {
         return Resources.getSystem().getDisplayMetrics().widthPixels;
     }
 
-    private int getScreenHeight()
+    public static int getScreenHeight()
     {
         return Resources.getSystem().getDisplayMetrics().heightPixels;
     }

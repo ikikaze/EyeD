@@ -8,6 +8,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.sql.ClientInfoStatus;
 
 /**
  * Created by Adi Neag on 05.05.2018.
@@ -34,8 +35,25 @@ public class ClientSocket {
         return read();
     }
 
+    public void sendStringWithoutResponse(String strMessage) throws IOException, InterruptedException {
+        byte [] message = new String(strMessage).getBytes();
+        ByteBuffer buffer = ByteBuffer.wrap(message);
+        client.write(buffer);
+        Log.d(ClientSocket.class.getName(), "Sent message: "+strMessage);
+        buffer.clear();
+    }
+
+    public void sendByteArrayWithoutResponse(byte[] data) throws IOException {
+        ByteBuffer buffer = ByteBuffer.wrap(data);
+        Log.d(ClientSocket.class.getName(), "Byte buffer data wrapped");
+        client.write(buffer);
+        Log.d(ClientSocket.class.getName(), "Sent byte array of length "+data.length);
+        buffer.clear();
+    }
+
     public String sendByteArray(byte[] data) throws IOException {
         ByteBuffer buffer = ByteBuffer.wrap(data);
+        Log.d(ClientSocket.class.getName(), "Byte buffer data wrapped");
         client.write(buffer);
         Log.d(ClientSocket.class.getName(), "Sent byte array of length "+data.length);
         buffer.clear();

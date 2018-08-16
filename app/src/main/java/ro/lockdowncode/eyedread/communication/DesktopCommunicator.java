@@ -27,9 +27,8 @@ public class DesktopCommunicator {
                 try {
                     serverSocket = new ServerSocket(serverAddress, serverPort, listener);
                     serverSocket.startServer();
-                } catch (IOException e) {
-                } catch (ClosedSelectorException e) {
-                    // do nothing (expected to get here)
+                } catch (IOException | ClosedSelectorException e) {
+                    e.printStackTrace(System.out);
                 }
             }
         };
@@ -44,6 +43,8 @@ public class DesktopCommunicator {
         serverThread.interrupt();
     }
 
+    //public void ping()
+
     public void sendMessage(final String message, final String destinationAddress) {
         Runnable client = new Runnable() {
             @Override
@@ -52,9 +53,8 @@ public class DesktopCommunicator {
                 try {
                     clientSocket = new ClientSocket(destinationAddress, 33778);
                     clientSocket.sendString(message);
-                } catch (ConnectException e) {
-                    messageListener.hostUnavailable(destinationAddress);
                 } catch (IOException | InterruptedException e) {
+                    messageListener.hostUnavailable(destinationAddress);
                 } finally {
                     if (clientSocket != null) {
                         clientSocket.close();
@@ -65,25 +65,23 @@ public class DesktopCommunicator {
         new Thread(client).start();
     }
 
-    public void sendPhoto(final byte[] data, final String destinationAddress) {
+    public void sendPhoto(final byte[] data, final String destinationAddress, final int type) {
         Runnable client = new Runnable() {
             @Override
             public void run() {
                 ClientSocket clientSocket = null;
                 try {
                     clientSocket = new ClientSocket(destinationAddress, 33778);
-                    String resp = clientSocket.sendString("0008:"+ Build.SERIAL+":PrepareReceivePicture:1");
+                    String resp = clientSocket.sendString("0008:"+ Build.SERIAL+":PrepareReceivePicture:"+type);
                     if (resp.equalsIgnoreCase("0009:ReadyToReceivePicture")) {
                         long length = data.length;
-                        clientSocket.sendString("0009:"+length);
-                        clientSocket.sendByteArray(data);
+                        clientSocket.sendStringWithoutResponse("0009:"+length);
+                        clientSocket.sendByteArrayWithoutResponse(data);
                     } else if (resp.equalsIgnoreCase("0004:Busy")) {
                         messageListener.desktopBusy(destinationAddress);
                     }
-                } catch (ConnectException e) {
-                    messageListener.hostUnavailable(destinationAddress);
                 } catch (IOException | InterruptedException e) {
-                    e.printStackTrace(System.out);
+                    messageListener.hostUnavailable(destinationAddress);
                 } finally {
                     if (clientSocket != null) {
                         clientSocket.close();

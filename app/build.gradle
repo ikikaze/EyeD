@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'realm-android'
 
 android {
     compileSdkVersion 27
@@ -27,6 +28,8 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    implementation 'com.karumi:dexter:5.0.0'
+
     implementation 'com.github.google:cameraview:d0b508a5ea'
     testImplementation 'junit:junit:4.12'
     implementation 'com.wdullaer:materialdatetimepicker:3.5.2'
@@ -35,5 +38,12 @@ dependencies {
     implementation 'com.madgag.spongycastle:prov:1.54.0.0'
     implementation 'edu.ucar:jj2000:5.2'
     implementation 'com.github.mhshams:jnbis:1.1.0'
-    implementation 'com.google.android.gms:play-services-vision:15.0.2'
+    implementation 'com.google.android.gms:play-services-vision:15.0.1'
+
+    implementation 'com.github.bmelnychuk:atv:1.2.+'
+
+}
+
+realm {
+    syncEnabled = true;
 }

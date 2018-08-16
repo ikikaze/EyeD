@@ -15,23 +15,17 @@
  */
 package ro.lockdowncode.eyedread.ocr;
 
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.graphics.Camera;
 import android.graphics.Rect;
-import android.support.v4.app.ActivityCompat;
+import android.support.constraint.ConstraintLayout;
 import android.util.Log;
 import android.util.SparseArray;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.vision.CameraSource;
+import ro.lockdowncode.eyedread.UI.CameraSource;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.text.TextBlock;
-
-import java.io.IOException;
 
 import ro.lockdowncode.eyedread.NFCActivity;
 import ro.lockdowncode.eyedread.PictureHandler;
@@ -45,7 +39,7 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
 
     //private GraphicOverlay<OcrGraphic> graphicOverlay;
     private TextView top, bottom;
-    private LinearLayout mrzArea;
+    private ConstraintLayout mrzArea;
     private int[] widthHeight;
     CameraSource camera;
 
@@ -55,7 +49,7 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
 
     private int repetitionsFound = 0;
 
-    public OcrDetectorProcessor(LinearLayout mrzArea, int[] widthHeight) {
+    public OcrDetectorProcessor(ConstraintLayout mrzArea, int[] widthHeight) {
         this.mrzArea = mrzArea;
         top = (TextView) mrzArea.getChildAt(0);
         bottom = (TextView) mrzArea.getChildAt(1);
@@ -89,27 +83,17 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
     private void setProcessingArea() {
         //area is always in index order : left, right, top, bottom
         int[] leftTop = new int[2];
-
         mrzArea.getLocationOnScreen(leftTop);
 
-        int swidth, sheight, pwidth, pheight;
-
-        swidth = Resources.getSystem().getDisplayMetrics().widthPixels;
-        sheight = Resources.getSystem().getDisplayMetrics().heightPixels;
-        pwidth = 1280;
-        pheight = 1024;
-
-
-        processingBox[0] = (int) ((double) leftTop[0] * ((double) pwidth / (double) swidth));
-        processingBox[1] = (int) ((double) (leftTop[0] + widthHeight[0]) * ((double) pwidth / (double) swidth));
-        processingBox[2] = (int) ((double) leftTop[1] * ((double) pheight / (double) sheight));
-        processingBox[3] = (int) ((double) (leftTop[1] + widthHeight[1]) * ((double) pheight / (double) sheight));
+        processingBox[0] = leftTop[0];
+        processingBox[1] = (leftTop[0] + widthHeight[0]);
+        processingBox[2] = leftTop[1];
+        processingBox[3] = (leftTop[1] + widthHeight[1]);
 
         processingBox[0] = (int) ((double) processingBox[0] * 0.85);
         processingBox[1] = (int) ((double) processingBox[1] * 1.15);
         processingBox[2] = (int) ((double) processingBox[2] * 0.85);
         processingBox[3] = (int) ((double) processingBox[3] * 1.15);
-        // scale this shit to preview sizes for fuck's sake
     }
 
     /**
@@ -133,7 +117,7 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
 
                 Rect box = item.getBoundingBox();
                 //Log.d("OcrDetectorProcessor", String.format("Box left right up down %s %s %s %s",box.left,box.right,box.top,box.bottom ));
-
+                Log.d("OcrDetectorProcessor", "Text detected! out of box " + item.getValue());
                 // check if it's inside processing box
                 if (box.left >= processingBox[0] && box.right <= processingBox[1] && box.top >= processingBox[2] && box.bottom <= processingBox[3]) {
                     Log.d("OcrDetectorProcessor", "Text detected! " + item.getValue());
@@ -156,7 +140,7 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
                                 Log.d("OcrDetectorProcessor", "number " + passNumber + " bday " + passBday + " expdate " + passExpDate);
                                 //checkNumbersConsistency(passNumber,passBday,passExpDate);
 
-                                Intent intent = new Intent(mrzArea.getContext(), NFCActivity.class);
+                                final Intent intent = new Intent(mrzArea.getContext(), NFCActivity.class);
                                 intent.putExtra("Number", passNumber);
                                 intent.putExtra("Bday", passBday);
                                 intent.putExtra("ExpDate", passExpDate);
@@ -169,14 +153,15 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
                                     @Override
                                     public void onPictureTaken(byte[] bytes) {
                                         Log.d("sourcepicturestart", "onPictureTaken " + bytes.length);
-                                        PictureHandler pictureHandler = new PictureHandler(mrzArea.getContext(), Utils.Type.PASAPORT);
+                                        PictureHandler pictureHandler = new PictureHandler(mrzArea.getContext(), Utils.Document.PASAPORT);
                                         pictureHandler.savePicture(bytes);
                                         //pictureHandler.sendPictureToPC(bytes);
                                         Log.d("sourcepicturestop", "onPictureTaken " + bytes.length);
+                                        mrzArea.getContext().startActivity(intent);
                                     }
                                 });
 
-                                mrzArea.getContext().startActivity(intent);
+
 
 
 
