@@ -8,11 +8,14 @@ import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.nfc.NfcAdapter;
+import android.nfc.NfcManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -370,9 +373,50 @@ public class MainActivity extends AppCompatActivity {
         btnScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent;
-                intent = new Intent(MainActivity.instance,PassportOCRActivity.class);
-                startActivity(intent);
+
+                NfcManager manager = (NfcManager) getSystemService(NFC_SERVICE);
+                NfcAdapter adapter = manager.getDefaultAdapter();
+
+                if(adapter != null && adapter.isEnabled())
+                {
+                    Intent intent;
+                    intent = new Intent(MainActivity.instance, PassportOCRActivity.class);
+                    startActivity(intent);
+                }
+                else if(adapter!=null && !adapter.isEnabled())
+                {
+                    //go to activate NFC TODO
+                    AlertDialog.Builder alertbox = new AlertDialog.Builder(v.getContext());
+                    alertbox.setTitle("Info");
+                    alertbox.setMessage("Apasati butonul Continuati pentru a activa NFC-ul din meniul de setari.\n" +
+                            "Dupa ce este activat, apasati pe butonul de revenire pentru a continua.");
+                    alertbox.setPositiveButton("Continuati", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
+                                startActivity(intent);
+                            } else {
+                                Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+                                startActivity(intent);
+                            }
+                        }
+                    });
+                    alertbox.setNegativeButton("Reveniti", new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    });
+                    alertbox.show();
+                }
+                else if(adapter == null)
+                {
+                    // phone has no NFC, buy better hardware poor man
+                    // exit and tell user
+
+                }
             }
         });
 

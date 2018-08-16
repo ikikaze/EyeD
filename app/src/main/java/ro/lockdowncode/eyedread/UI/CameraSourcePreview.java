@@ -128,65 +128,117 @@ public class CameraSourcePreview extends ViewGroup {
         }
     }
 
+//    @Override
+//    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+//        int previewWidth = 320;
+//        int previewHeight = 240;
+//        if (cameraSource != null) {
+//            Size size = cameraSource.getPreviewSize();
+//            if (size != null) {
+//                previewWidth = size.getWidth();
+//                previewHeight = size.getHeight();
+//            }
+//        }
+//
+//        // Swap width and height sizes when in portrait, since it will be rotated 90 degrees
+//        if (isPortraitMode()) {
+//            int tmp = previewWidth;
+//            previewWidth = previewHeight;
+//            previewHeight = tmp;
+//        }
+//
+//        final int viewWidth = right - left;
+//        final int viewHeight = bottom - top;
+//
+//        int childWidth;
+//        int childHeight;
+//        int childXOffset = 0;
+//        int childYOffset = 0;
+//        float widthRatio = (float) viewWidth / (float) previewWidth;
+//        float heightRatio = (float) viewHeight / (float) previewHeight;
+//
+//        // To fill the view with the camera preview, while also preserving the correct aspect ratio,
+//        // it is usually necessary to slightly oversize the child and to crop off portions along one
+//        // of the dimensions.  We scale up based on the dimension requiring the most correction, and
+//        // compute a crop offset for the other dimension.
+//        if (widthRatio > heightRatio) {
+//            childWidth = viewWidth;
+//            childHeight = (int) ((float) previewHeight * widthRatio);
+//            childYOffset = (childHeight - viewHeight) / 2;
+//        } else {
+//            childWidth = (int) ((float) previewWidth * heightRatio);
+//            childHeight = viewHeight;
+//            childXOffset = (childWidth - viewWidth) / 2;
+//        }
+//
+//        for (int i = 0; i < getChildCount(); ++i) {
+//            // One dimension will be cropped.  We shift child over or up by this offset and adjust
+//            // the size to maintain the proper aspect ratio.
+//            getChildAt(i).layout(
+//                    -1 * childXOffset, -1 * childYOffset,
+//                    childWidth - childXOffset, childHeight - childYOffset);
+//        }
+//
+//        try {
+//            startIfReady();
+//        } catch (SecurityException se) {
+//            Log.e(TAG,"Do not have permission to start the camera", se);
+//        } catch (IOException e) {
+//            Log.e(TAG, "Could not start camera source.", e);
+//        }
+//    }
+//
+
+
     @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        int previewWidth = 320;
-        int previewHeight = 240;
+    protected void onLayout (boolean changed, int left, int top, int right, int bottom)
+    {
+        int width = getWidth();
+        int height = getHeight();
+
         if (cameraSource != null) {
             Size size = cameraSource.getPreviewSize();
             if (size != null) {
-                previewWidth = size.getWidth();
-                previewHeight = size.getHeight();
+                width = size.getWidth();
+                height = size.getHeight();
             }
         }
 
+        int layoutWidth = right - left;
+        int layoutHeight = bottom - top;
+
         // Swap width and height sizes when in portrait, since it will be rotated 90 degrees
         if (isPortraitMode()) {
-            int tmp = previewWidth;
-            previewWidth = previewHeight;
-            previewHeight = tmp;
+            int tmp = width;
+            //noinspection SuspiciousNameCombination
+            width = height;
+            height = tmp;
         }
 
-        final int viewWidth = right - left;
-        final int viewHeight = bottom - top;
+        int childWidth = layoutWidth;
+        int childHeight = (int) (((float) layoutWidth / (float) width) * height);
 
-        int childWidth;
-        int childHeight;
-        int childXOffset = 0;
-        int childYOffset = 0;
-        float widthRatio = (float) viewWidth / (float) previewWidth;
-        float heightRatio = (float) viewHeight / (float) previewHeight;
-
-        // To fill the view with the camera preview, while also preserving the correct aspect ratio,
-        // it is usually necessary to slightly oversize the child and to crop off portions along one
-        // of the dimensions.  We scale up based on the dimension requiring the most correction, and
-        // compute a crop offset for the other dimension.
-        if (widthRatio > heightRatio) {
-            childWidth = viewWidth;
-            childHeight = (int) ((float) previewHeight * widthRatio);
-            childYOffset = (childHeight - viewHeight) / 2;
-        } else {
-            childWidth = (int) ((float) previewWidth * heightRatio);
-            childHeight = viewHeight;
-            childXOffset = (childWidth - viewWidth) / 2;
+        if (isPortraitMode()) {
+            childHeight = layoutHeight;
+            childWidth = (int) (((float) layoutHeight / (float) height) * width);
         }
 
         for (int i = 0; i < getChildCount(); ++i) {
-            // One dimension will be cropped.  We shift child over or up by this offset and adjust
-            // the size to maintain the proper aspect ratio.
-            getChildAt(i).layout(
-                    -1 * childXOffset, -1 * childYOffset,
-                    childWidth - childXOffset, childHeight - childYOffset);
+            getChildAt(i).layout(0, 0, childWidth, childHeight);
         }
 
         try {
             startIfReady();
-        } catch (SecurityException se) {
-            Log.e(TAG,"Do not have permission to start the camera", se);
-        } catch (IOException e) {
-            Log.e(TAG, "Could not start camera source.", e);
+        }
+        catch (SecurityException se) {
+        }
+        catch (IOException ie)
+        {
+
         }
     }
+
+
 
     private boolean isPortraitMode() {
         int orientation = context.getResources().getConfiguration().orientation;
