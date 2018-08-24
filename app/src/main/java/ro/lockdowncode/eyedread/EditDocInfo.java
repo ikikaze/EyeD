@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -25,10 +26,18 @@ public class EditDocInfo extends AppCompatActivity {
 
     private CustomDocFieldValueAdapter adapter;
 
+    private static EditDocInfo instance;
+
+    public static EditDocInfo getInstance() {
+        return instance;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_doc_info);
+
+        instance = this;
 
         byte[] picData = EyeDRead.getInstance().getCapturedPhotoData();
         Bitmap bmp = BitmapFactory.decodeByteArray(picData, 0, picData.length);

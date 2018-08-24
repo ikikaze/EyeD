@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
     private Dialog passDialog;
     private AlertDialog wifiAlertDialog;
     private AlertDialog desktopBusy;
+    private AlertDialog activityCanceledDialog;
 
     private Utils.Document searchDocType;
 
@@ -125,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
         btnSearch = findViewById(R.id.btnSearch);
         btnID = findViewById(R.id.btnID);
         btnPass = findViewById(R.id.btnPass);
+        btnPass.setEnabled(false);
         btnLicense = findViewById(R.id.btnLicense);
     }
 
@@ -170,6 +172,10 @@ public class MainActivity extends AppCompatActivity {
         }
         if (desktopBusy != null) {
             desktopBusy.dismiss();
+        }
+
+        if (activityCanceledDialog != null) {
+            activityCanceledDialog.dismiss();
         }
         if (getConnStatus() == CONNECTION_STATUS.CONNECTED && CommunicationService.uiMessageReceiverHandler != null) {
             // ping desktop
@@ -615,6 +621,27 @@ public class MainActivity extends AppCompatActivity {
             msg.setData(data);
             CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
         }
+    }
+
+    public void cancelActivity() {
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                if (activityCanceledDialog == null) {
+                    activityCanceledDialog = new AlertDialog.Builder(MainActivity.getInstance())
+                            .setTitle("Alerta")
+                            .setMessage("Activitatea a fost oprita din calculator!")
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setNeutralButton("OK", null).create();
+                }
+                if (!activityCanceledDialog.isShowing()) {
+                    if (!isFinishing()) {
+                        activityCanceledDialog.show();
+                    }
+                }
+            }
+        });
     }
 
 }

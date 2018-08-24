@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import okhttp3.internal.Util;
+import ro.lockdowncode.eyedread.EditDocInfo;
 import ro.lockdowncode.eyedread.LicenseActivity;
 import ro.lockdowncode.eyedread.MainActivity;
 import ro.lockdowncode.eyedread.SendDocument;
@@ -211,6 +212,14 @@ public class CommunicationService extends Service implements MessageListener {
                 if (msgChunks[1].equalsIgnoreCase("CancelCurrentProcess")) {
                     if (SendDocument.getInstance() != null) {
                         SendDocument.getInstance().processStoppedByDesktop();
+                    }
+                    if (EditDocInfo.getInstance() != null) {
+                        EditDocInfo.getInstance().finish();
+                        MainActivity.getInstance().cancelActivity();
+                    }
+                    if (TemplatesList.getInstance() != null) {
+                        TemplatesList.getInstance().finish();
+                        MainActivity.getInstance().cancelActivity();
                     }
                 }
                 break;
