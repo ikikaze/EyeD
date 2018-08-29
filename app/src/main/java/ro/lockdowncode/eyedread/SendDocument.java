@@ -73,6 +73,7 @@ public class SendDocument extends AppCompatActivity {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             picData = baos.toByteArray();
+            EyeDRead.getInstance().setCapturedPhotoData(picData);
         }
 
         // phone not paired with any desktop

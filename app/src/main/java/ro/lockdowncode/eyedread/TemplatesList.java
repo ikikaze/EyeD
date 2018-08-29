@@ -43,6 +43,10 @@ public class TemplatesList extends AppCompatActivity implements TreeNode.TreeNod
     private AndroidTreeView tView;
     private List<TemplateListItemView.TemplateListItem> selected;
 
+    private AlertDialog statusDialog;
+    private AlertDialog loadingDialog;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -101,10 +105,10 @@ public class TemplatesList extends AppCompatActivity implements TreeNode.TreeNod
             View nodeView = node.getViewHolder().getView();
             if (!selected.contains(item)) {
                 selected.add(item);
-                nodeView.setBackgroundColor(getResources().getColor(R.color.colorEyeD));
+                nodeView.setBackgroundColor(getResources().getColor(R.color.colorBackgroundSelected));
             } else {
                 selected.remove(item);
-                nodeView.setBackgroundColor(getResources().getColor(R.color.mdtp_white));
+                nodeView.setBackgroundColor(getResources().getColor(R.color.colorBackgroundPrimary));
             }
         }
     }
@@ -112,16 +116,23 @@ public class TemplatesList extends AppCompatActivity implements TreeNode.TreeNod
     public void btnClicked(View view) {
         int id = view.getId();
         switch (id) {
-            case R.id.btnBack:
+            case R.id.btnCancel:
                 MainActivity.getInstance().cancelCurrentServerProcess();
                 Intent homeIntent = new Intent(this, MainActivity.class);
                 startActivity(homeIntent);
                 break;
+            case R.id.btnBack:
+                Intent backIntent = new Intent(this, EditDocInfo.class);
+                backIntent.putExtra("dataJson", getIntent().getStringExtra("dataJson"));
+                backIntent.setFlags(backIntent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
+                startActivity(backIntent);
+                break;
             case R.id.btnNext:
                 if (selected.isEmpty()) {
                     new AlertDialog.Builder(this)
-                            .setTitle("Atentie")
-                            .setMessage("Nu ai selectat niciun sablon!").show();
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .setMessage("Nu ati selectat niciun sablon!")
+                            .setPositiveButton("OK", null).show();
                 } else {
                     //send fields
                     Message msg = new Message();
@@ -130,6 +141,11 @@ public class TemplatesList extends AppCompatActivity implements TreeNode.TreeNod
                     data.putString("message", "0018:Valid:"+getIntent().getStringExtra("dataJson"));
                     msg.setData(data);
                     CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
+
+                    //requestStatus("Se proceseaza documentele...");
+                    loadingDialog = new AlertDialog.Builder(TemplatesList.this)
+                            .setMessage("Se proceseaza documentele...").create();
+                    loadingDialog.show();
                 }
                 break;
         }
@@ -183,9 +199,21 @@ public class TemplatesList extends AppCompatActivity implements TreeNode.TreeNod
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                new AlertDialog.Builder(TemplatesList.this)
-                        .setTitle("Info")
-                        .setMessage(message).show();
+                if (loadingDialog != null && loadingDialog.isShowing()) {
+                    loadingDialog.dismiss();
+                }
+                if (statusDialog != null) {
+                    statusDialog.setMessage(message);
+                } else {
+                    statusDialog = new AlertDialog.Builder(TemplatesList.this)
+                            .setMessage(message)
+                            .setPositiveButton("OK", null).create();
+                }
+                if (!statusDialog.isShowing()) {
+                    if (!isFinishing()) {
+                        statusDialog.show();
+                    }
+                }
             }
         });
 

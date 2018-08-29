@@ -86,6 +86,7 @@ public class EditDocInfo extends AppCompatActivity {
                 Intent intent = new Intent(this, TemplatesList.class);
                 intent.putExtra("type", getIntent().getStringExtra("type"));
                 intent.putExtra("dataJson", getFieldsValuesJson());
+                intent.setFlags(intent.getFlags() | Intent.FLAG_ACTIVITY_NO_HISTORY);
                 startActivity(intent);
                 break;
         }

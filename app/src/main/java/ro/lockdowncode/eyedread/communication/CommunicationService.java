@@ -213,11 +213,11 @@ public class CommunicationService extends Service implements MessageListener {
                     if (SendDocument.getInstance() != null) {
                         SendDocument.getInstance().processStoppedByDesktop();
                     }
-                    if (EditDocInfo.getInstance() != null) {
+                    if (EditDocInfo.getInstance() != null && !EditDocInfo.getInstance().isFinishing()) {
                         EditDocInfo.getInstance().finish();
                         MainActivity.getInstance().cancelActivity();
                     }
-                    if (TemplatesList.getInstance() != null) {
+                    if (TemplatesList.getInstance() != null  && !TemplatesList.getInstance().isFinishing()) {
                         TemplatesList.getInstance().finish();
                         MainActivity.getInstance().cancelActivity();
                     }

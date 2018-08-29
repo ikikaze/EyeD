@@ -51,10 +51,6 @@ public class MainActivity extends AppCompatActivity {
         return instance;
     }
 
-    private MenuButton btnSearch;
-    private MenuButton btnID;
-    private MenuButton btnPass;
-    private MenuButton btnLicense;
     private MenuButton btnConnect;
 
     private Dialog connDialog;
@@ -74,14 +70,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Have no idea why I put this here but at this point I'm too afraid to remove it
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
         instance = this;
+        btnConnect = findViewById(R.id.btnConnect);
 
         handlePermissions();
-
-        initButtons();
 
         Intent intent = new Intent(MainActivity.this, CommunicationService.class);
         startService(intent);
@@ -105,7 +101,6 @@ public class MainActivity extends AppCompatActivity {
                         .withButtonText(android.R.string.ok)
                         .build();
 
-
         Dexter.withActivity(this)
                 .withPermissions(
                         Manifest.permission.CAMERA,
@@ -121,30 +116,23 @@ public class MainActivity extends AppCompatActivity {
                 ).withListener(dialogMultiplePermissionsListener).check();
     }
 
-    private void initButtons() {
-        btnConnect = findViewById(R.id.btnConnect);
-        btnSearch = findViewById(R.id.btnSearch);
-        btnID = findViewById(R.id.btnID);
-        btnPass = findViewById(R.id.btnPass);
-        btnPass.setEnabled(false);
-        btnLicense = findViewById(R.id.btnLicense);
-    }
-
     private void handleConnectBtnClik() {
-        if (getConnStatus() == CONNECTION_STATUS.CONNECTED) {
-            handleConnectionStatusClick_Connected(false);
-        } else if (getConnStatus() == CONNECTION_STATUS.WAITING) {
-            handleConnectionStatusClick_Connected(true);
-        } else {
-            Intent homepage = new Intent(MainActivity.this, PairingActivity.class);
-            startActivity(homepage);
+        wifiStatusChange();
+        if (wifiOn) {
+            if (getConnStatus() == CONNECTION_STATUS.CONNECTED) {
+                handleConnectionStatusClick_Connected(false);
+            } else if (getConnStatus() == CONNECTION_STATUS.WAITING) {
+                handleConnectionStatusClick_Connected(true);
+            } else {
+                Intent homepage = new Intent(MainActivity.this, PairingActivity.class);
+                startActivity(homepage);
+            }
         }
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-
         if (wifiAlertDialog != null) {
             wifiAlertDialog.dismiss();
         }
@@ -174,9 +162,6 @@ public class MainActivity extends AppCompatActivity {
             desktopBusy.dismiss();
         }
 
-        if (activityCanceledDialog != null) {
-            activityCanceledDialog.dismiss();
-        }
         if (getConnStatus() == CONNECTION_STATUS.CONNECTED && CommunicationService.uiMessageReceiverHandler != null) {
             // ping desktop
             Message msg = new Message();
@@ -278,9 +263,7 @@ public class MainActivity extends AppCompatActivity {
         newConnectionButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 new AlertDialog.Builder(MainActivity.getInstance())
-                        .setTitle("Title")
                         .setMessage("Doriti sa va conectati cu alt calculator ?")
-                        .setIcon(android.R.drawable.ic_dialog_alert)
                         .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 resetConnectionPreferences();
@@ -299,8 +282,6 @@ public class MainActivity extends AppCompatActivity {
 
         connDialog.show();
     }
-
-
 
     public void searchDocSelected(View view) {
         int id = view.getId();
@@ -321,13 +302,11 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
 
-
-                Intent galleryIntent = new Intent(Intent.ACTION_PICK,
-                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(galleryIntent, RESULT_LOAD_IMG);
+            Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            startActivityForResult(galleryIntent, RESULT_LOAD_IMG);
         }
     }
-
 
     public void btnsClicked(View view) {
         int id = view.getId();
@@ -343,7 +322,9 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("type", Utils.Document.PERMIS.name());
                 break;
             case R.id.btnPass:
-                handlePassportSelect();
+                //handlePassportSelect();
+                intent = new Intent(this, LicenseActivity.class);
+                intent.putExtra("type", Utils.Document.PASAPORT.name());
                 break;
             case R.id.btnSearch:
                 docTypeSelectionPopup();
@@ -436,34 +417,24 @@ public class MainActivity extends AppCompatActivity {
         btnScan.setWidth(btnPic.getWidth());
         passDialog.show();
 
-
-
-
     }
 
     private void docTypeSelectionPopup() {
         // custom dialog
         docTypeSelectionDialog = new Dialog(MainActivity.getInstance());
         docTypeSelectionDialog.setContentView(R.layout.doc_type_selection_dialog);
-        docTypeSelectionDialog.setTitle("Title...");
-
-
         docTypeSelectionDialog.show();
     }
 
     public void pairingSuccessful(String desktopID) {
         saveNewConnection(getActiveDesktopConnection().getName(), getActiveDesktopConnection().getIp(), desktopID, 2);
         runOnUiThread(new Runnable() {
-
             @Override
             public void run() {
-
                 resetConnectionButtonText();
                 setConnectionVisibility(true);
-
             }
         });
-
     }
 
     public void updateDsktopIP(String desktopIP) {
@@ -500,6 +471,7 @@ public class MainActivity extends AppCompatActivity {
                         wifiAlertDialog = new AlertDialog.Builder(MainActivity.getInstance())
                                 .setTitle("Wifi este oprit")
                                 .setMessage("Conecteaza-te la wifi pentru a putea comunica cu calculatorul")
+                                .setPositiveButton("OK", null)
                                 .setIcon(android.R.drawable.ic_dialog_alert).create();
                     }
                     if (!wifiAlertDialog.isShowing()) {
@@ -524,7 +496,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             wifiOn = true;
-
         }
     }
 
@@ -537,6 +508,7 @@ public class MainActivity extends AppCompatActivity {
                     desktopBusy = new AlertDialog.Builder(MainActivity.getInstance())
                             .setTitle("Calculatorul este ocupat")
                             .setMessage("Te rugam incearca mai tarziu")
+                            .setPositiveButton("OK", null)
                             .setIcon(android.R.drawable.ic_dialog_alert).create();
                 }
                 if (!desktopBusy.isShowing()) {
@@ -625,15 +597,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void cancelActivity() {
         runOnUiThread(new Runnable() {
-
             @Override
             public void run() {
                 if (activityCanceledDialog == null) {
                     activityCanceledDialog = new AlertDialog.Builder(MainActivity.getInstance())
-                            .setTitle("Alerta")
-                            .setMessage("Activitatea a fost oprita din calculator!")
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setNeutralButton("OK", null).create();
+                            .setMessage("Activitatea a fost oprita !")
+                            .setPositiveButton("OK", null).create();
                 }
                 if (!activityCanceledDialog.isShowing()) {
                     if (!isFinishing()) {

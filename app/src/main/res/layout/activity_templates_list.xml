@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#464646"
     tools:context="ro.lockdowncode.eyedread.TemplatesList">
 
     <ScrollView
@@ -12,10 +13,11 @@
         android:layout_height="453dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toTopOf="@+id/btnBack"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/templates">
 
         <LinearLayout
             android:id="@+id/templateList"
@@ -25,12 +27,17 @@
     </ScrollView>
 
     <Button
-        android:id="@+id/btnBack"
+        android:id="@+id/btnCancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:text="Inapoi"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/button_bg"
         android:onClick="btnClicked"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:text="Renunta"
+        android:textColor="@color/colorEyeD"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -40,8 +47,43 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
-        android:text="Mai departe"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:background="@drawable/button_bg"
+        android:textColor="@color/colorEyeD"
+        android:text="Printeaza"
         android:onClick="btnClicked"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:background="@drawable/button_bg"
+        android:textColor="@color/colorEyeD"
+        android:text="Inapoi"
+        android:onClick="btnClicked"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnNext"
+        app:layout_constraintStart_toEndOf="@+id/btnCancel" />
+
+    <TextView
+        android:id="@+id/templates"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:text="Selecteaza sabloane"
+        android:textColor="@color/colorEyeD"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>
