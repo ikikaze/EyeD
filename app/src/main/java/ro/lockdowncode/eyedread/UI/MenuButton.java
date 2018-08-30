@@ -73,7 +73,7 @@ public class MenuButton extends ConstraintLayout {
         mTextView.setText(mText);
         mTextView.setClickable(false);
         mTextView.setFocusable(false);
-        mTextView.setTextColor(getResources().getColor(R.color.colorEyeD));
+        mTextView.setTextColor(getResources().getColor(R.color.colorBtnPink));
     }
 
     public void setText(String text)

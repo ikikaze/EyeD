@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/EyeD.iml" filepath="$PROJECT_DIR$/EyeD.iml" />
+      <module fileurl="file://$PROJECT_DIR$/EyeDRead.iml" filepath="$PROJECT_DIR$/EyeDRead.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#464646"
+    android:background="#ebebf1"
     tools:context=".MainActivity">
 
     <ro.lockdowncode.eyedread.UI.MenuButton
@@ -17,7 +17,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/button_bg"
-        app:menu_button_image="@mipmap/search"
+        app:menu_button_image="@mipmap/search_pink"
         android:onClick="btnsClicked"
         app:menu_button_text="@string/strSearch"
         android:textColor="@color/colorEyeD"
@@ -40,13 +40,13 @@
         android:background="@drawable/button_bg"
         android:onClick="btnsClicked"
         android:padding="10dp"
-        android:textColor="@color/colorEyeD"
+        android:textColor="@color/colorBtnPink"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/btnConnect"
         app:layout_constraintVertical_bias="0.284"
-        app:menu_button_image="@mipmap/idcard"
+        app:menu_button_image="@mipmap/idcard_pink"
         app:menu_button_text="@string/strID" />
 
     <ro.lockdowncode.eyedread.UI.MenuButton
@@ -58,7 +58,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/button_bg"
-        app:menu_button_image="@mipmap/link"
+        app:menu_button_image="@mipmap/link_pink"
         android:onClick="btnsClicked"
         android:padding="3dp"
         android:paddingBottom="3dp"
@@ -96,7 +96,7 @@
             android:onClick="btnsClicked"
             android:padding="7dp"
             android:textColor="@color/colorEyeD"
-            app:menu_button_image="@mipmap/pass"
+            app:menu_button_image="@mipmap/pass_pink"
             app:menu_button_text="@string/strPass" />
 
         <ro.lockdowncode.eyedread.UI.MenuButton
@@ -109,7 +109,7 @@
             android:onClick="btnsClicked"
             android:padding="7dp"
             android:textColor="@color/colorEyeD"
-            app:menu_button_image="@mipmap/license"
+            app:menu_button_image="@mipmap/license_pink"
             app:menu_button_text="@string/strLicense" />
 
     </LinearLayout>

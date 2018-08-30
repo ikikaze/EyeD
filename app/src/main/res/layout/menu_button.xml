@@ -30,7 +30,8 @@
             android:layout_height="wrap_content"
             android:text="TextView"
             android:textAlignment="center"
-            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Widget.Button" />
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Widget.Button"
+            android:textColor="@color/colorBtnPink" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
