@@ -7,26 +7,18 @@
     android:background="@color/colorBgGray"
     tools:context="ro.lockdowncode.eyedread.pairing.PairingActivity">
 
-    <TextView
-        android:text="Plesae select somthing...."
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/wifiStatus"
-        android:background="@android:color/holo_orange_dark" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_below="@+id/wifiStatus">
+        android:orientation="vertical">
 
         <android.support.design.widget.TabLayout
             android:id="@+id/sliding_tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:tabBackground="@color/colorPrimary"
-            app:tabTextColor="@android:color/white"
-            app:tabSelectedTextColor="@android:color/white"
+            app:tabBackground="@color/colorBtnTransparent"
+            app:tabTextColor="@color/colorAccent"
+            app:tabSelectedTextColor="@color/colorAccent"
             app:tabIndicatorHeight="5dp"
             app:tabMode="fixed" />
 
