@@ -27,9 +27,9 @@
         android:layout_marginBottom="8dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
-        android:text="TextView"
+        android:text="Template category"
         android:textSize="18sp"
-        android:textColor="@color/colorEyeD"
+        android:textColor="@color/colorBackgroundPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/template_list_item_icon"
         app:layout_constraintTop_toTopOf="parent" />

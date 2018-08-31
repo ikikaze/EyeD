@@ -133,7 +133,7 @@ public class SendDocument extends AppCompatActivity {
                     status.setTextColor(Color.RED);
                 } else {
                     pb.setVisibility(View.VISIBLE);
-                    status.setTextColor(Color.WHITE);
+                    status.setTextColor(Color.BLACK);
                 }
             }
         });

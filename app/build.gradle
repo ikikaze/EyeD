@@ -2,6 +2,14 @@ apply plugin: 'com.android.application'
 apply plugin: 'realm-android'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'EyeDRead'
+            keyPassword 'eyedread'
+            storeFile file('D:/work-repos-other/EyeD/keystore/android.jks')
+            storePassword 'eyedread'
+        }
+    }
     compileSdkVersion 27
     defaultConfig {
         applicationId "ro.lockdowncode.eyedread"
@@ -13,7 +21,7 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -29,7 +37,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.karumi:dexter:5.0.0'
-
     implementation 'com.github.google:cameraview:d0b508a5ea'
     testImplementation 'junit:junit:4.12'
     implementation 'com.wdullaer:materialdatetimepicker:3.5.2'
@@ -39,9 +46,7 @@ dependencies {
     implementation 'edu.ucar:jj2000:5.2'
     implementation 'com.github.mhshams:jnbis:1.1.0'
     implementation 'com.google.android.gms:play-services-vision:15.0.1'
-
     implementation 'com.github.bmelnychuk:atv:1.2.+'
-
 }
 
 realm {

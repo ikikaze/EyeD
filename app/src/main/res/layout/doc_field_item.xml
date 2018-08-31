@@ -2,7 +2,6 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#464646"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -14,7 +13,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:textSize="20sp"
-        android:textColor="@color/colorEyeD"
+        android:textColor="@color/colorBackgroundPrimary"
         android:labelFor="@+id/fieldValue"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -30,7 +29,7 @@
         android:layout_marginTop="8dp"
         android:ems="10"
         android:inputType="text"
-        android:textColor="@color/colorEyeD"
+        android:textColor="@color/colorBackgroundPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/fieldName"

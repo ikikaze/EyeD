@@ -105,10 +105,10 @@ public class TemplatesList extends AppCompatActivity implements TreeNode.TreeNod
             View nodeView = node.getViewHolder().getView();
             if (!selected.contains(item)) {
                 selected.add(item);
-                nodeView.setBackgroundColor(getResources().getColor(R.color.colorBackgroundSelected));
+                nodeView.setBackgroundColor(getResources().getColor(R.color.colorBtnPink));
             } else {
                 selected.remove(item);
-                nodeView.setBackgroundColor(getResources().getColor(R.color.colorBackgroundPrimary));
+                nodeView.setBackgroundColor(getResources().getColor(R.color.colorBgGray));
             }
         }
     }

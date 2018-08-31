@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ebebf1"
+    android:background="@color/colorBgGray"
     tools:context=".MainActivity">
 
     <ro.lockdowncode.eyedread.UI.MenuButton
