@@ -24,6 +24,7 @@ import io.realm.Progress;
 import ro.lockdowncode.eyedread.DesktopConnection;
 import ro.lockdowncode.eyedread.MainActivity;
 import ro.lockdowncode.eyedread.R;
+import ro.lockdowncode.eyedread.Utils;
 import ro.lockdowncode.eyedread.communication.CommunicationService;
 import ro.lockdowncode.eyedread.communication.MultiCastSender;
 import ro.lockdowncode.eyedread.pairing.tabs.FragmentsPagerAdapter;
@@ -113,6 +114,15 @@ public class PairingActivity extends AppCompatActivity {
     }
 
     public void searchForDesktops() {
+        if(!Utils.checkWifiOnAndConnected(this)) {
+            new AlertDialog.Builder(PairingActivity.getInstance())
+                    .setTitle("Wifi este oprit")
+                    .setMessage("Conecteaza-te la wifi pentru a putea comunica cu calculatorul")
+                    .setPositiveButton("OK", null)
+                    .setIcon(android.R.drawable.ic_dialog_alert).show();
+            return;
+        }
+
         refreshButton.setVisibility(View.GONE);
         loadingSpinner.setVisibility(View.VISIBLE);
         new Thread(new Runnable() {
@@ -171,6 +181,14 @@ public class PairingActivity extends AppCompatActivity {
     }
 
     public void selectNewDesktopConnection(final String name, final String ip) {
+        if(!Utils.checkWifiOnAndConnected(this)) {
+            new AlertDialog.Builder(PairingActivity.getInstance())
+                    .setTitle("Wifi este oprit")
+                    .setMessage("Conecteaza-te la wifi pentru a putea comunica cu calculatorul")
+                    .setPositiveButton("OK", null)
+                    .setIcon(android.R.drawable.ic_dialog_alert).show();
+            return;
+        }
         // custom dialog
         final Dialog dialog = new Dialog(PairingActivity.getInstance());
         dialog.setContentView(R.layout.pin_dialog);
