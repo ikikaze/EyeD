@@ -83,7 +83,16 @@ public class MainActivity extends AppCompatActivity {
         startService(intent);
 
         resetConnectionButtonText();
-    }
+     }
+
+
+     private void openInfoAlert() {
+         new AlertDialog.Builder(MainActivity.getInstance())
+                 .setTitle("Conectat la "+getActiveDesktopConnection().getName())
+                 .setMessage("Puteti transmite imagini direct din aceasta aplicatie fara a mai fi nevoie sa accesati meniul Telefon Mobil al aplicatiei de pe calculator. Aplicatia desktop le va procesa automat")
+                 .setPositiveButton("OK", null)
+                 .setIcon(android.R.drawable.ic_dialog_info).show();
+     }
 
     private void handlePermissions() {
 
@@ -142,6 +151,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        if (intent.getStringExtra("conStatus") != null) {
+            getIntent().putExtra("conStatus", intent.getStringExtra("conStatus"));
+        } else {
+            getIntent().removeExtra("conStatus");
+        }
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         resetConnectionButtonText();
@@ -170,6 +190,9 @@ public class MainActivity extends AppCompatActivity {
             data.putString("message", "0012:" + Build.SERIAL + ":Ping:" + getActiveDesktopConnection().getId());
             msg.setData(data);
             CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
+        }
+        if (getIntent().getStringExtra("conStatus") != null && getIntent().getStringExtra("conStatus").equals("saved")) {
+            openInfoAlert();
         }
     }
 
@@ -433,11 +456,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 resetConnectionButtonText();
                 setConnectionVisibility(true);
-                new AlertDialog.Builder(MainActivity.getInstance())
-                        .setTitle("Conectat la "+getActiveDesktopConnection().getName())
-                        .setMessage("Puteti transmite imagini direct din aceasta aplicatie fara a mai fi nevoie sa accesati meniul Telefon Mobil al aplicatiei de pe calculator. Aplicatia desktop le va procesa automat")
-                        .setPositiveButton("OK", null)
-                        .setIcon(android.R.drawable.ic_dialog_info).show();
+                openInfoAlert();
             }
         });
     }
