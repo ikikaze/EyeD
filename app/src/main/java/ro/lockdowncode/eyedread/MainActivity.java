@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
             Message msg = new Message();
             Bundle data = new Bundle();
             data.putString("destination", getActiveDesktopConnection().getIp());
-            data.putString("message", "0012:" + Build.SERIAL + ":Ping");
+            data.putString("message", "0012:" + Build.SERIAL + ":Ping:" + getActiveDesktopConnection().getId());
             msg.setData(data);
             CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
         }
@@ -248,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
                     Message msg = new Message();
                     Bundle data = new Bundle();
                     data.putString("destination", getActiveDesktopConnection().getIp());
-                    data.putString("message", "0012:" + Build.SERIAL + ":Ping");
+                    data.putString("message", "0012:" + Build.SERIAL + ":Ping:" + getActiveDesktopConnection().getId());
                     msg.setData(data);
                     CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
                     connDialog.dismiss();
@@ -433,6 +433,11 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 resetConnectionButtonText();
                 setConnectionVisibility(true);
+                new AlertDialog.Builder(MainActivity.getInstance())
+                        .setTitle("Conectat la "+getActiveDesktopConnection().getName())
+                        .setMessage("Puteti transmite imagini direct din aceasta aplicatie fara a mai fi nevoie sa accesati meniul Telefon Mobil al aplicatiei de pe calculator. Aplicatia desktop le va procesa automat")
+                        .setPositiveButton("OK", null)
+                        .setIcon(android.R.drawable.ic_dialog_info).show();
             }
         });
     }
@@ -490,7 +495,7 @@ public class MainActivity extends AppCompatActivity {
                     Message msg = new Message();
                     Bundle data = new Bundle();
                     data.putString("destination", getActiveDesktopConnection().getIp());
-                    data.putString("message", "0012:" + Build.SERIAL + ":Ping");
+                    data.putString("message", "0012:" + Build.SERIAL + ":Ping:" + getActiveDesktopConnection().getId());
                     msg.setData(data);
                     CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
                 }

@@ -173,7 +173,7 @@ public class CommunicationService extends Service implements MessageListener {
                 if (cmd.equalsIgnoreCase("available") && desktopMAC.equals(MainActivity.getInstance().getActiveDesktopConnection().getId())) {
                     MainActivity.getInstance().setConnectionVisibility(true);
                 } else if (cmd.equalsIgnoreCase("ping") && desktopMAC.equals(MainActivity.getInstance().getActiveDesktopConnection().getId())) {
-                    getDesktopCommunicator().sendMessage("0012:" + Build.SERIAL + ":Ping", desktopIP);
+                    getDesktopCommunicator().sendMessage("0012:" + Build.SERIAL + ":Ping:" + MainActivity.getInstance().getActiveDesktopConnection().getId(), desktopIP);
                 }
                 break;
 
@@ -231,7 +231,8 @@ public class CommunicationService extends Service implements MessageListener {
         Log.d(CommunicationService.class.getName(), "Host unavailable");
         if (MainActivity.getInstance().getConnStatus() == MainActivity.CONNECTION_STATUS.CONNECTED && Utils.checkWifiOnAndConnected(MainActivity.getInstance().getApplicationContext())) {
             MainActivity.getInstance().setConnectionVisibility(false);
-            String multicastMessage = "0006:09fe5d9775f04a4b8b9b081a8e732bae:"+Build.SERIAL;
+            //String multicastMessage = "0006:09fe5d9775f04a4b8b9b081a8e732bae:"+Build.SERIAL;
+            String multicastMessage = "0006:"+MainActivity.getInstance().getActiveDesktopConnection().getId()+":"+Build.SERIAL;
             new MultiCastSender(MainActivity.getInstance(), "255.255.255.255", 33558, multicastMessage).start();
 
             if (SendDocument.getInstance() != null) {
