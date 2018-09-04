@@ -37,6 +37,9 @@ public class PairingActivity extends AppCompatActivity {
 
     private ProgressBar loadingSpinner;
 
+    private TextView notFoundTitle;
+    private TextView notFoundMessage;
+
     public static PairingActivity getInstance() {
         return instance;
     }
@@ -67,6 +70,8 @@ public class PairingActivity extends AppCompatActivity {
             }
         });
         loadingSpinner = this.findViewById(R.id.loadingSpinner);
+        notFoundTitle = this.findViewById(R.id.statusMessageTitle);
+        notFoundMessage = this.findViewById(R.id.statusMessageWarning);
 
         final ViewPager viewPager = (ViewPager)findViewById(R.id.viewpager);
         viewPager.setAdapter(adapter);
@@ -122,7 +127,8 @@ public class PairingActivity extends AppCompatActivity {
                     .setIcon(android.R.drawable.ic_dialog_alert).show();
             return;
         }
-
+        notFoundTitle.setVisibility(View.GONE);
+        notFoundMessage.setVisibility(View.GONE);
         refreshButton.setVisibility(View.GONE);
         loadingSpinner.setVisibility(View.VISIBLE);
         new Thread(new Runnable() {
@@ -149,6 +155,10 @@ public class PairingActivity extends AppCompatActivity {
             public void run() {
                 refreshButton.setVisibility(View.VISIBLE);
                 loadingSpinner.setVisibility(View.GONE);
+                if (activeConnections.isEmpty()) {
+                    notFoundTitle.setVisibility(View.VISIBLE);
+                    notFoundMessage.setVisibility(View.VISIBLE);
+                }
             }
         });
     }
