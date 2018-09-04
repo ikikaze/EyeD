@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private AlertDialog wifiAlertDialog;
     private AlertDialog desktopBusy;
     private AlertDialog activityCanceledDialog;
+    private AlertDialog desktopNotAvailableDialog;
 
     private Utils.Document searchDocType;
 
@@ -148,16 +149,8 @@ public class MainActivity extends AppCompatActivity {
         if (passDialog != null) {
             passDialog.dismiss();
         }
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-
-        if (intent.getStringExtra("conStatus") != null) {
-            getIntent().putExtra("conStatus", intent.getStringExtra("conStatus"));
-        } else {
-            getIntent().removeExtra("conStatus");
+        if (desktopNotAvailableDialog != null) {
+            desktopNotAvailableDialog.dismiss();
         }
     }
 
@@ -174,12 +167,14 @@ public class MainActivity extends AppCompatActivity {
         if (wifiAlertDialog != null) {
             wifiAlertDialog.dismiss();
         }
-
         if (passDialog != null) {
             passDialog.dismiss();
         }
         if (desktopBusy != null) {
             desktopBusy.dismiss();
+        }
+        if (desktopNotAvailableDialog != null) {
+            desktopNotAvailableDialog.dismiss();
         }
 
         if (getConnStatus() == CONNECTION_STATUS.CONNECTED && CommunicationService.uiMessageReceiverHandler != null) {
@@ -190,9 +185,6 @@ public class MainActivity extends AppCompatActivity {
             data.putString("message", "0012:" + Build.SERIAL + ":Ping:" + getActiveDesktopConnection().getId());
             msg.setData(data);
             CommunicationService.uiMessageReceiverHandler.sendMessage(msg);
-        }
-        if (getIntent().getStringExtra("conStatus") != null && getIntent().getStringExtra("conStatus").equals("saved")) {
-            openInfoAlert();
         }
     }
 
@@ -238,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void resetConnectionButtonText() {
         if (getConnStatus() == CONNECTION_STATUS.CONNECTED) {
-            btnConnect.setText("Conecteaza-te la "+getActiveDesktopConnection().getName());
+            btnConnect.setText("Deconectat de la "+getActiveDesktopConnection().getName());
         } else if (getConnStatus() == CONNECTION_STATUS.WAITING) {
             btnConnect.setText("Se asteapta conexiune de la "+getActiveDesktopConnection().getName());
         } else {
@@ -457,6 +449,26 @@ public class MainActivity extends AppCompatActivity {
                 resetConnectionButtonText();
                 setConnectionVisibility(true);
                 openInfoAlert();
+            }
+        });
+    }
+
+    public void desktopNotAvailable() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (desktopNotAvailableDialog == null) {
+                    desktopNotAvailableDialog = new AlertDialog.Builder(MainActivity.getInstance())
+                            .setTitle("Conexiune Desktop")
+                            .setMessage("Nu se poate stabili conexiunea la desktop-ul "+getActiveDesktopConnection().getName())
+                            .setPositiveButton("OK", null)
+                            .setIcon(android.R.drawable.ic_dialog_info).create();
+                }
+                if (!desktopNotAvailableDialog.isShowing()) {
+                    if (!isFinishing()) {
+                        desktopNotAvailableDialog.show();
+                    }
+                }
             }
         });
     }

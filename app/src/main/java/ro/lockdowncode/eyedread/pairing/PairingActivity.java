@@ -186,7 +186,6 @@ public class PairingActivity extends AppCompatActivity {
     public void selectSavedDesktopConnection(String name, String ip, String id) {
         MainActivity.getInstance().saveNewConnection(name, ip, id, 2);
         Intent homepage = new Intent(this, MainActivity.class);
-        homepage.putExtra("conStatus", "saved");
         homepage.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
         startActivity(homepage);
     }

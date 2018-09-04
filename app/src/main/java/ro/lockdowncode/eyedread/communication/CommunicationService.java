@@ -34,6 +34,8 @@ public class CommunicationService extends Service implements MessageListener {
 
     public static Handler uiMessageReceiverHandler = null;
 
+    private boolean reconnected = false;
+
     private DesktopCommunicator desktopCommunicator;
 
     public DesktopCommunicator getDesktopCommunicator() {
@@ -143,6 +145,7 @@ public class CommunicationService extends Service implements MessageListener {
                 break;
             case "0007":
                 MainActivity.getInstance().updateDsktopIP(desktopIP);
+                reconnected = true;
                 break;
             case "0009":
                 if (msgChunks[1].equals("TransferComplete")) {
@@ -231,12 +234,22 @@ public class CommunicationService extends Service implements MessageListener {
         Log.d(CommunicationService.class.getName(), "Host unavailable");
         if (MainActivity.getInstance().getConnStatus() == MainActivity.CONNECTION_STATUS.CONNECTED && Utils.checkWifiOnAndConnected(MainActivity.getInstance().getApplicationContext())) {
             MainActivity.getInstance().setConnectionVisibility(false);
-            //String multicastMessage = "0006:09fe5d9775f04a4b8b9b081a8e732bae:"+Build.SERIAL;
             String multicastMessage = "0006:"+MainActivity.getInstance().getActiveDesktopConnection().getId()+":"+Build.SERIAL;
             new MultiCastSender(MainActivity.getInstance(), "255.255.255.255", 33558, multicastMessage).start();
-
             if (SendDocument.getInstance() != null) {
                 SendDocument.getInstance().hostUnavailable();
+            }
+
+            try {
+                Thread.sleep(2000);
+                if (!reconnected) {
+                    //alert desktop cannot be reached
+                    MainActivity.getInstance().desktopNotAvailable();
+                } else {
+                    reconnected = false;
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
