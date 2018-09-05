@@ -41,8 +41,7 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:paddingTop="100dp"
-            android:text="Opriti aplicatia de mobil si porniti-o din nou. Daca avet
-            i pornita o aplicatie EyeD Read Desktop pe unul din calculatoarele din reteaua la care este conectat telefonul, verificati pe ambele daca firewall-ul sau antivirusul blocheaza porturile aplicatiei EyeD Read."
+            android:text="Opriti aplicatia de mobil si porniti-o din nou. Daca aveti pornita o aplicatie EyeD Read Desktop pe unul din calculatoarele din reteaua la care este conectat telefonul, verificati pe ambele daca firewall-ul sau antivirusul blocheaza porturile aplicatiei EyeD Read."
             android:textAlignment="center"
             android:textColor="@color/colorAccent"
             android:textSize="18sp"
