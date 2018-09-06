@@ -323,6 +323,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void linkClicked(View view) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.eyed-read.lockdown-code.ro/"));
+        startActivity(browserIntent);
+    }
+
     public void btnsClicked(View view) {
         int id = view.getId();
 

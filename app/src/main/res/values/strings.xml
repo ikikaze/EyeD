@@ -43,4 +43,5 @@
     <string name="chipMRZInfo">Descarcare informatii</string>
     <string name="chipPic">Descarcare poza</string>
     <string name="NFCConnInfo">Mentineti telefonul in aceeasi pozitie fata de pasaport pana la citirea datelor</string>
+    <string name="websiteLinkTitle"><u>Vezi EyeD-Read website</u></string>
 </resources>
